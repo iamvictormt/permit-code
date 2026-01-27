@@ -9,8 +9,8 @@ import type {
 export const mockUsers: User[] = [
   {
     id: "1",
-    full_name: "João Silva",
-    email: "joao.silva@empresa.com",
+    full_name: "John Smith",
+    email: "john.smith@company.com",
     verification_level: "HIGH",
     account_status: "ACTIVE",
     created_at: "2024-01-15T10:00:00Z",
@@ -19,7 +19,7 @@ export const mockUsers: User[] = [
   {
     id: "2",
     full_name: "Maria Santos",
-    email: "maria.santos@empresa.com",
+    email: "maria.santos@company.com",
     verification_level: "MEDIUM",
     account_status: "ACTIVE",
     created_at: "2024-02-10T09:00:00Z",
@@ -27,8 +27,8 @@ export const mockUsers: User[] = [
   },
   {
     id: "3",
-    full_name: "Pedro Costa",
-    email: "pedro.costa@terceiros.com",
+    full_name: "Peter Costa",
+    email: "peter.costa@contractors.com",
     verification_level: "LOW",
     account_status: "SUSPENDED",
     created_at: "2024-03-01T08:00:00Z",
@@ -36,8 +36,8 @@ export const mockUsers: User[] = [
   },
   {
     id: "4",
-    full_name: "Ana Oliveira",
-    email: "ana.oliveira@visitante.com",
+    full_name: "Anna Oliver",
+    email: "anna.oliver@visitor.com",
     verification_level: "LOW",
     account_status: "ACTIVE",
     created_at: "2024-03-15T14:00:00Z",
@@ -45,8 +45,8 @@ export const mockUsers: User[] = [
   },
   {
     id: "5",
-    full_name: "Carlos Ferreira",
-    email: "carlos.ferreira@empresa.com",
+    full_name: "Charles Ferreira",
+    email: "charles.ferreira@company.com",
     verification_level: "HIGH",
     account_status: "BLOCKED",
     created_at: "2023-11-20T10:00:00Z",
@@ -153,19 +153,19 @@ export const mockShareCodes: ShareCode[] = [
     code: "ABC123XY",
     user_id: "1",
     expires_at: "2024-04-15T23:59:59Z",
-    purpose: "Acesso temporário ao setor administrativo",
+    purpose: "Temporary access to administrative sector",
   },
   {
     code: "DEF456ZW",
     user_id: "2",
     expires_at: "2024-03-30T23:59:59Z",
-    purpose: "Verificação de credenciais",
+    purpose: "Credential verification",
   },
   {
     code: "GHI789AB",
     user_id: "4",
     expires_at: "2024-03-20T18:00:00Z",
-    purpose: "Visita técnica",
+    purpose: "Technical visit",
   },
 ]
 
