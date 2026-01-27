@@ -1,291 +1,238 @@
-"use client"
+'use client';
 
-import React from "react"
+import React from 'react';
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/auth-context"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, AlertCircle, Shield } from "lucide-react"
-import Link from "next/link"
-import { GovFooter } from "@/components/gov-footer"
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, AlertCircle, Shield } from 'lucide-react';
+import Link from 'next/link';
+import { GovFooter } from '@/components/gov-footer';
+import Image from 'next/image';
 
-type DocumentType = "passport" | "national_id" | "biometric_card" | "customer_number"
+type DocumentType = 'passport' | 'national_id' | 'biometric_card' | 'customer_number';
 
 interface DateOfBirth {
-  day: string
-  month: string
-  year: string
+  day: string;
+  month: string;
+  year: string;
 }
 
 interface DateErrors {
-  day?: string
-  month?: string
-  year?: string
+  day?: string;
+  month?: string;
+  year?: string;
 }
 
 const validateDate = (dob: DateOfBirth): DateErrors => {
-  const errors: DateErrors = {}
-  const day = parseInt(dob.day, 10)
-  const month = parseInt(dob.month, 10)
-  const year = parseInt(dob.year, 10)
-  const currentYear = new Date().getFullYear()
+  const errors: DateErrors = {};
+  const day = parseInt(dob.day, 10);
+  const month = parseInt(dob.month, 10);
+  const year = parseInt(dob.year, 10);
+  const currentYear = new Date().getFullYear();
 
   if (!dob.day) {
-    errors.day = "Enter day"
+    errors.day = 'Enter day';
   } else if (isNaN(day) || day < 1 || day > 31) {
-    errors.day = "Day must be between 1 and 31"
+    errors.day = 'Day must be between 1 and 31';
   }
 
   if (!dob.month) {
-    errors.month = "Enter month"
+    errors.month = 'Enter month';
   } else if (isNaN(month) || month < 1 || month > 12) {
-    errors.month = "Month must be between 1 and 12"
+    errors.month = 'Month must be between 1 and 12';
   }
 
   if (!dob.year) {
-    errors.year = "Enter year"
+    errors.year = 'Enter year';
   } else if (isNaN(year) || dob.year.length !== 4) {
-    errors.year = "Year must be 4 digits"
+    errors.year = 'Year must be 4 digits';
   } else if (year < 1900) {
-    errors.year = "Year must be after 1900"
+    errors.year = 'Year must be after 1900';
   } else if (year > currentYear) {
-    errors.year = "Year cannot be in the future"
+    errors.year = 'Year cannot be in the future';
   }
 
   if (!errors.day && !errors.month && !errors.year) {
-    const daysInMonth = new Date(year, month, 0).getDate()
+    const daysInMonth = new Date(year, month, 0).getDate();
     if (day > daysInMonth) {
-      errors.day = `Day must be between 1 and ${daysInMonth} for this month`
+      errors.day = `Day must be between 1 and ${daysInMonth} for this month`;
     }
 
-    const inputDate = new Date(year, month - 1, day)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const inputDate = new Date(year, month - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     if (inputDate > today) {
-      errors.day = "Date of birth cannot be in the future"
+      errors.day = 'Date of birth cannot be in the future';
     }
 
-    const minAgeDate = new Date()
-    minAgeDate.setFullYear(minAgeDate.getFullYear() - 16)
+    const minAgeDate = new Date();
+    minAgeDate.setFullYear(minAgeDate.getFullYear() - 16);
     if (inputDate > minAgeDate) {
-      errors.year = "You must be at least 16 years old"
+      errors.year = 'You must be at least 16 years old';
     }
   }
 
-  return errors
-}
+  return errors;
+};
 
-type SecurityCodeMethod = "sms" | "email"
+type SecurityCodeMethod = 'sms' | 'email';
 
 export default function LoginPage() {
-  const [step, setStep] = useState<"document" | "document_number" | "date_of_birth" | "security_code" | "verify_code">("document")
-  const [documentType, setDocumentType] = useState<DocumentType | "">("")
-  const [documentNumber, setDocumentNumber] = useState("")
-  const [dateOfBirth, setDateOfBirth] = useState<DateOfBirth>({ day: "", month: "", year: "" })
-  const [dateErrors, setDateErrors] = useState<DateErrors>({})
-  const [securityCodeMethod, setSecurityCodeMethod] = useState<SecurityCodeMethod | "">("")
-  const [securityCode, setSecurityCode] = useState("")
-  const [error, setError] = useState("")
-  const { login, isLoading } = useAuth()
-  const router = useRouter()
+  const [step, setStep] = useState<'document' | 'document_number' | 'date_of_birth' | 'security_code' | 'verify_code'>(
+    'document',
+  );
+  const [documentType, setDocumentType] = useState<DocumentType | ''>('');
+  const [documentNumber, setDocumentNumber] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState<DateOfBirth>({ day: '', month: '', year: '' });
+  const [dateErrors, setDateErrors] = useState<DateErrors>({});
+  const [securityCodeMethod, setSecurityCodeMethod] = useState<SecurityCodeMethod | ''>('');
+  const [securityCode, setSecurityCode] = useState('');
+  const [error, setError] = useState('');
+  const { login, isLoading } = useAuth();
+  const router = useRouter();
 
   const handleContinueToDocumentNumber = () => {
     if (!documentType) {
-      setError("Please select a document type")
-      return
+      setError('Please select a document type');
+      return;
     }
-    setError("")
-    setStep("document_number")
-  }
+    setError('');
+    setStep('document_number');
+  };
 
   const handleContinueToDateOfBirth = () => {
     if (!documentNumber) {
-      setError("Please enter your document number")
-      return
+      setError('Please enter your document number');
+      return;
     }
-    setError("")
-    setStep("date_of_birth")
-  }
+    setError('');
+    setStep('date_of_birth');
+  };
 
   const handleContinueToSecurityCode = (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setDateErrors({})
+    e.preventDefault();
+    setError('');
+    setDateErrors({});
 
-    const errors = validateDate(dateOfBirth)
+    const errors = validateDate(dateOfBirth);
     if (Object.keys(errors).length > 0) {
-      setDateErrors(errors)
-      return
+      setDateErrors(errors);
+      return;
     }
 
-    setStep("security_code")
-  }
+    setStep('security_code');
+  };
 
   const handleContinueToVerifyCode = () => {
     if (!securityCodeMethod) {
-      setError("Please select how you want to receive your security code")
-      return
+      setError('Please select how you want to receive your security code');
+      return;
     }
-    setError("")
-    setStep("verify_code")
-  }
+    setError('');
+    setStep('verify_code');
+  };
 
   const handleVerifyCode = async () => {
     if (!securityCode || securityCode.length !== 6) {
-      setError("Please enter the 6-digit security code")
-      return
+      setError('Please enter the 6-digit security code');
+      return;
     }
 
-    const result = await login("admin@empresa.com", "admin123")
-    
+    const result = await login('admin@empresa.com', 'admin123');
+
     if (result.success) {
-      router.push("/profile")
+      router.push('/profile');
     } else {
-      setError(result.error || "Login failed")
+      setError(result.error || 'Login failed');
     }
-  }
+  };
 
   const handleDateChange = (field: keyof DateOfBirth, value: string) => {
-    const numericValue = value.replace(/\D/g, "")
-    
-    let limitedValue = numericValue
-    if (field === "day" || field === "month") {
-      limitedValue = numericValue.slice(0, 2)
-    } else if (field === "year") {
-      limitedValue = numericValue.slice(0, 4)
+    const numericValue = value.replace(/\D/g, '');
+
+    let limitedValue = numericValue;
+    if (field === 'day' || field === 'month') {
+      limitedValue = numericValue.slice(0, 2);
+    } else if (field === 'year') {
+      limitedValue = numericValue.slice(0, 4);
     }
 
-    setDateOfBirth(prev => ({ ...prev, [field]: limitedValue }))
-    
+    setDateOfBirth((prev) => ({ ...prev, [field]: limitedValue }));
+
     if (dateErrors[field]) {
-      setDateErrors(prev => ({ ...prev, [field]: undefined }))
+      setDateErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-  }
+  };
 
   const handleSubmit = () => {
     // Placeholder for handleSubmit logic
-  }
+  };
 
   const getDocumentTitle = () => {
     switch (documentType) {
-      case "passport":
-        return "What is your passport number?"
-      case "national_id":
-        return "What is your national identity card number?"
-      case "biometric_card":
-        return "What is your biometric residence card or permit number?"
-      case "customer_number":
-        return "What is your UKVI customer number?"
+      case 'passport':
+        return 'What is your passport number?';
+      case 'national_id':
+        return 'What is your national identity card number?';
+      case 'biometric_card':
+        return 'What is your biometric residence card or permit number?';
+      case 'customer_number':
+        return 'What is your UKVI customer number?';
       default:
-        return "What is your document number?"
+        return 'What is your document number?';
     }
-  }
+  };
 
   const getDocumentLabel = () => {
     switch (documentType) {
-      case "passport":
-        return "Passport number"
-      case "national_id":
-        return "National identity card number"
-      case "biometric_card":
-        return "Biometric residence card or permit number"
-      case "customer_number":
-        return "Customer number"
+      case 'passport':
+        return 'Passport number';
+      case 'national_id':
+        return 'National identity card number';
+      case 'biometric_card':
+        return 'Biometric residence card or permit number';
+      case 'customer_number':
+        return 'Customer number';
       default:
-        return "Document number"
+        return 'Document number';
     }
-  }
+  };
 
   const getDocumentExample = () => {
     switch (documentType) {
-      case "passport":
-        return "For example, 120382978"
-      case "national_id":
-        return "For example, AB123456"
-      case "biometric_card":
-        return "For example, ZU1234567"
-      case "customer_number":
-        return ""
+      case 'passport':
+        return 'For example, 120382978';
+      case 'national_id':
+        return 'For example, AB123456';
+      case 'biometric_card':
+        return 'For example, ZU1234567';
+      case 'customer_number':
+        return '';
       default:
-        return "Enter your document number"
+        return 'Enter your document number';
     }
-  }
+  };
 
   const getHelpLink = () => {
     switch (documentType) {
-      case "passport":
-        return "I do not know my passport number"
-      case "national_id":
-        return "I do not know my national identity card number"
-      case "biometric_card":
-        return "I do not know my biometric residence card or permit number"
-      case "customer_number":
-        return "I do not know my UKVI customer number"
+      case 'passport':
+        return 'I do not know my passport number';
+      case 'national_id':
+        return 'I do not know my national identity card number';
+      case 'biometric_card':
+        return 'I do not know my biometric residence card or permit number';
+      case 'customer_number':
+        return 'I do not know my UKVI customer number';
       default:
-        return "I do not know my document number"
+        return 'I do not know my document number';
     }
-  }
-
-  // Biometric card illustration component
-  const BiometricCardIllustration = () => (
-    <div className="mb-8 relative">
-      {/* Card illustration */}
-      <div className="relative w-full max-w-[280px]">
-        {/* The card */}
-        <svg viewBox="0 0 320 200" className="w-full h-auto">
-          {/* Card background with gradient */}
-          <defs>
-            <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#2D8B7A" />
-              <stop offset="50%" stopColor="#E8B4D0" />
-              <stop offset="100%" stopColor="#2D8B7A" />
-            </linearGradient>
-          </defs>
-          <rect x="0" y="20" width="240" height="150" rx="8" fill="url(#cardGradient)" />
-          
-          {/* Card header stripe */}
-          <rect x="0" y="20" width="240" height="25" rx="8" fill="#1a5c4e" />
-          <rect x="0" y="37" width="240" height="8" fill="#1a5c4e" />
-          
-          {/* White stripes on header */}
-          <rect x="60" y="28" width="80" height="4" fill="white" opacity="0.8" />
-          <rect x="60" y="35" width="50" height="4" fill="white" opacity="0.6" />
-          
-          {/* Document number on card */}
-          <text x="145" y="58" fontSize="10" fill="#333" fontFamily="monospace">ZU1234567</text>
-          
-          {/* Photo placeholder */}
-          <rect x="15" y="55" width="55" height="70" fill="#d1d5db" />
-          <circle cx="42" cy="80" r="15" fill="#9ca3af" />
-          <ellipse cx="42" cy="105" rx="20" ry="12" fill="#9ca3af" />
-          
-          {/* UK coat of arms area */}
-          <circle cx="180" cy="100" r="35" fill="#E8B4D0" opacity="0.5" />
-          <text x="168" y="105" fontSize="24" fill="#9f1239" opacity="0.6">&#9827;</text>
-          
-          {/* Signature line */}
-          <path d="M 85 145 Q 100 135, 120 145 T 160 145" stroke="#666" strokeWidth="1" fill="none" />
-        </svg>
-        
-        {/* Zoom circle pointing to document number */}
-        <div className="absolute -top-2 -right-4 w-24 h-24 rounded-full bg-[#f8d4e0] border-2 border-[#e9a8c4] flex items-center justify-center">
-          <span className="text-sm font-mono font-medium text-foreground">ZU1234567</span>
-        </div>
-        
-        {/* Line connecting zoom to card */}
-        <svg className="absolute top-6 right-12 w-12 h-8" viewBox="0 0 50 30">
-          <line x1="0" y1="30" x2="50" y2="0" stroke="#e9a8c4" strokeWidth="2" />
-        </svg>
-      </div>
-    </div>
-  )
-
-  
+  };
 
   // Branding component
   const Branding = () => (
@@ -294,15 +241,13 @@ export default function LoginPage() {
         <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-primary-foreground/10 mx-auto mb-8">
           <Shield className="w-10 h-10 text-primary-foreground" />
         </div>
-        <h2 className="text-3xl font-bold text-primary-foreground mb-4">
-          PermitCode
-        </h2>
+        <h2 className="text-3xl font-bold text-primary-foreground mb-4">PermitCode</h2>
         <p className="text-primary-foreground/80 text-lg">
           Work permit management system for secure verification and compliance tracking.
         </p>
       </div>
     </div>
-  )
+  );
 
   // Mobile header component
   const MobileHeader = () => (
@@ -312,27 +257,25 @@ export default function LoginPage() {
       </div>
       <span className="font-bold text-xl text-foreground">PermitCode</span>
     </div>
-  )
+  );
 
   // Step 5: Verify Security Code
-  if (step === "verify_code") {
-    const maskedContact = securityCodeMethod === "email" 
-      ? "v***********p@gmail.com" 
-      : "075*****886"
-    const contactType = securityCodeMethod === "email" ? "email" : "text message"
-    const alternativeMethod = securityCodeMethod === "email" ? "phone number" : "email address"
+  if (step === 'verify_code') {
+    const maskedContact = securityCodeMethod === 'email' ? 'v***********p@gmail.com' : '075*****886';
+    const contactType = securityCodeMethod === 'email' ? 'email' : 'text message';
+    const alternativeMethod = securityCodeMethod === 'email' ? 'phone number' : 'email address';
 
     return (
       <main className="min-h-screen bg-background">
         <div className="min-h-screen flex">
           <Branding />
-          <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-            <div className="w-full max-w-md">
+          <div className="flex-1 flex items-center justify-center p-6 g:p-12">
+            <div className="w-full max-w-lg">
               <MobileHeader />
 
               <button
                 type="button"
-                onClick={() => setStep("security_code")}
+                onClick={() => setStep('security_code')}
                 className="text-primary hover:underline text-sm mb-6 flex items-center gap-1"
               >
                 <span>&lt;</span> Back
@@ -340,7 +283,7 @@ export default function LoginPage() {
 
               <p className="text-muted-foreground mb-2">Sign in</p>
               <h1 className="text-2xl font-bold text-foreground mb-6 text-balance">
-                Check your {securityCodeMethod === "email" ? "email" : "phone"}
+                Check your {securityCodeMethod === 'email' ? 'email' : 'phone'}
               </h1>
 
               <p className="text-muted-foreground mb-2">
@@ -369,9 +312,9 @@ export default function LoginPage() {
                     inputMode="numeric"
                     value={securityCode}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, "").slice(0, 6)
-                      setSecurityCode(value)
-                      setError("")
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      setSecurityCode(value);
+                      setError('');
                     }}
                     disabled={isLoading}
                     className="h-12 text-lg border-2 border-foreground"
@@ -379,7 +322,7 @@ export default function LoginPage() {
                   />
                 </div>
 
-                <Button 
+                <Button
                   onClick={handleVerifyCode}
                   disabled={isLoading}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -390,7 +333,7 @@ export default function LoginPage() {
                       Verifying...
                     </>
                   ) : (
-                    "Continue"
+                    'Continue'
                   )}
                 </Button>
 
@@ -399,7 +342,7 @@ export default function LoginPage() {
                   className="text-primary hover:underline text-sm"
                   onClick={() => {
                     // In a real app, this would resend the code
-                    setError("")
+                    setError('');
                   }}
                 >
                   Resend security code
@@ -409,12 +352,12 @@ export default function LoginPage() {
               <div className="mt-8 pt-6 border-t border-border">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Problems signing in</h2>
                 <p className="text-muted-foreground mb-3">
-                  If you do not have access to this {securityCodeMethod === "email" ? "email address" : "phone number"},{" "}
+                  If you do not have access to this {securityCodeMethod === 'email' ? 'email address' : 'phone number'},{' '}
                   <button
                     type="button"
                     onClick={() => {
-                      setSecurityCodeMethod(securityCodeMethod === "email" ? "sms" : "email")
-                      setStep("security_code")
+                      setSecurityCodeMethod(securityCodeMethod === 'email' ? 'sms' : 'email');
+                      setStep('security_code');
                     }}
                     className="text-primary hover:underline"
                   >
@@ -423,7 +366,7 @@ export default function LoginPage() {
                   .
                 </p>
                 <p className="text-muted-foreground">
-                  If you do not have access to your phone number and email address,{" "}
+                  If you do not have access to your phone number and email address,{' '}
                   <Link href="/login/recover" className="text-primary hover:underline">
                     recover your account
                   </Link>
@@ -435,19 +378,25 @@ export default function LoginPage() {
         </div>
         <GovFooter />
       </main>
-    )
+    );
   }
 
   // Step 4: Security Code Method
-  if (step === "security_code") {
+  if (step === 'security_code') {
     return (
       <main className="min-h-screen bg-background">
         <div className="min-h-screen flex">
           <Branding />
-          <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-            <div className="w-full max-w-md">
+          <div className="flex-1 flex items-center justify-center p-6 g:p-12">
+            <div className="w-full max-w-lg">
               <MobileHeader />
-
+              <button
+                type="button"
+                onClick={() => setStep('date_of_birth')}
+                className="text-primary hover:underline text-sm mb-6 flex items-center gap-1"
+              >
+                <span>&lt;</span> Back
+              </button>
               <p className="text-muted-foreground mb-2">Sign in</p>
               <h1 className="text-2xl font-bold text-foreground mb-8 text-balance">
                 How do you want to receive a security code?
@@ -463,35 +412,39 @@ export default function LoginPage() {
               <RadioGroup
                 value={securityCodeMethod}
                 onValueChange={(value) => {
-                  setSecurityCodeMethod(value as SecurityCodeMethod)
-                  setError("")
+                  setSecurityCodeMethod(value as SecurityCodeMethod);
+                  setError('');
                 }}
-                className="space-y-5 mb-8"
+                className="space-y-6 mb-8"
               >
-                <div className="flex items-start space-x-4">
-                  <RadioGroupItem 
-                    value="sms" 
+                <div className="flex gap-4 items-start sm:items-center">
+                  <RadioGroupItem
+                    value="sms"
                     id="sms"
-                    className="h-9 w-9 min-w-[36px] border-2 border-foreground mt-0.5"
+                    className="h-9 w-9 border-2 border-foreground shrink-0 sm:mt-0 mt-1"
                   />
-                  <Label htmlFor="sms" className="text-base sm:text-lg font-normal cursor-pointer leading-snug">
-                    Send a text message (SMS) to <span className="font-medium break-all">075*****886</span>
+
+                  <Label htmlFor="sms" className="text-lg font-normal cursor-pointer leading-snug block w-full">
+                    <span className="block sm:inline">Send a text message (SMS) to </span>
+                    <span className="block sm:inline font-medium">075*****886</span>
                   </Label>
                 </div>
 
-                <div className="flex items-start space-x-4">
-                  <RadioGroupItem 
-                    value="email" 
+                <div className="flex gap-4 items-start sm:items-center">
+                  <RadioGroupItem
+                    value="email"
                     id="email"
-                    className="h-9 w-9 min-w-[36px] border-2 border-foreground mt-0.5"
+                    className="h-9 w-9 border-2 border-foreground shrink-0 sm:mt-0 mt-1"
                   />
-                  <Label htmlFor="email" className="text-base sm:text-lg font-normal cursor-pointer leading-snug">
-                    Send an email to <span className="font-medium break-all">v***********p@gmail.com</span>
+
+                  <Label htmlFor="email" className="text-lg font-normal cursor-pointer leading-snug block w-full">
+                    <span className="block sm:inline">Send an email to </span>
+                    <span className="block sm:inline font-medium break-words">v***********p@gmail.com</span>
                   </Label>
                 </div>
               </RadioGroup>
 
-              <Button 
+              <Button
                 onClick={handleContinueToVerifyCode}
                 disabled={isLoading}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -502,45 +455,39 @@ export default function LoginPage() {
               <div className="mt-8 pt-6 border-t border-border">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Problems signing in</h2>
                 <p className="text-muted-foreground">
-                  If you do not have access to the phone number and email address,{" "}
+                  If you do not have access to the phone number and email address,{' '}
                   <Link href="/login/recover" className="text-primary hover:underline">
                     recover your account
                   </Link>
                   .
                 </p>
               </div>
-
-              <div className="mt-6">
-                <button
-                  type="button"
-                  onClick={() => setStep("date_of_birth")}
-                  className="text-primary hover:underline text-sm"
-                >
-                  Back
-                </button>
-              </div>
             </div>
           </div>
         </div>
         <GovFooter />
       </main>
-    )
+    );
   }
 
   // Step 3: Date of Birth
-  if (step === "date_of_birth") {
+  if (step === 'date_of_birth') {
     return (
       <main className="min-h-screen bg-background">
         <div className="min-h-screen flex">
           <Branding />
-          <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-            <div className="w-full max-w-md">
+          <div className="flex-1 flex items-center justify-center p-6 g:p-12">
+            <div className="w-full max-w-lg">
               <MobileHeader />
-
+              <button
+                type="button"
+                onClick={() => setStep('document_number')}
+                className="text-primary hover:underline text-sm mb-6 flex items-center gap-1"
+              >
+                <span>&lt;</span> Back
+              </button>
               <p className="text-muted-foreground mb-2">Sign in</p>
-              <h1 className="text-2xl font-bold text-foreground mb-6 text-balance">
-                What is your date of birth?
-              </h1>
+              <h1 className="text-2xl font-bold text-foreground mb-6 text-balance">What is your date of birth?</h1>
 
               {error && (
                 <Alert variant="destructive" className="mb-6">
@@ -551,67 +498,65 @@ export default function LoginPage() {
 
               <form onSubmit={handleContinueToSecurityCode} className="space-y-6">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-foreground">
-                    Date of birth
-                  </Label>
+                  <Label className="text-sm font-medium text-foreground">Date of birth</Label>
                   <p className="text-sm text-muted-foreground">For example, 31 03 1990</p>
                   <div className="flex gap-3 mt-4">
                     <div className="space-y-1">
-                      <Label htmlFor="day" className="text-xs text-muted-foreground">Day</Label>
+                      <Label htmlFor="day" className="text-xs text-muted-foreground">
+                        Day
+                      </Label>
                       <Input
                         id="day"
                         type="text"
                         inputMode="numeric"
                         placeholder="DD"
                         value={dateOfBirth.day}
-                        onChange={(e) => handleDateChange("day", e.target.value)}
+                        onChange={(e) => handleDateChange('day', e.target.value)}
                         disabled={isLoading}
-                        className={`h-12 w-20 text-center text-lg border-2 ${dateErrors.day ? "border-destructive focus-visible:ring-destructive" : "border-foreground"}`}
+                        className={`h-12 w-20 text-center text-lg border-2 ${dateErrors.day ? 'border-destructive focus-visible:ring-destructive' : 'border-foreground'}`}
                         maxLength={2}
                       />
-                      {dateErrors.day && (
-                        <p className="text-xs text-destructive max-w-20">{dateErrors.day}</p>
-                      )}
+                      {dateErrors.day && <p className="text-xs text-destructive max-w-20">{dateErrors.day}</p>}
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="month" className="text-xs text-muted-foreground">Month</Label>
+                      <Label htmlFor="month" className="text-xs text-muted-foreground">
+                        Month
+                      </Label>
                       <Input
                         id="month"
                         type="text"
                         inputMode="numeric"
                         placeholder="MM"
                         value={dateOfBirth.month}
-                        onChange={(e) => handleDateChange("month", e.target.value)}
+                        onChange={(e) => handleDateChange('month', e.target.value)}
                         disabled={isLoading}
-                        className={`h-12 w-20 text-center text-lg border-2 ${dateErrors.month ? "border-destructive focus-visible:ring-destructive" : "border-foreground"}`}
+                        className={`h-12 w-20 text-center text-lg border-2 ${dateErrors.month ? 'border-destructive focus-visible:ring-destructive' : 'border-foreground'}`}
                         maxLength={2}
                       />
-                      {dateErrors.month && (
-                        <p className="text-xs text-destructive max-w-20">{dateErrors.month}</p>
-                      )}
+                      {dateErrors.month && <p className="text-xs text-destructive max-w-20">{dateErrors.month}</p>}
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="year" className="text-xs text-muted-foreground">Year</Label>
+                      <Label htmlFor="year" className="text-xs text-muted-foreground">
+                        Year
+                      </Label>
                       <Input
                         id="year"
                         type="text"
                         inputMode="numeric"
                         placeholder="YYYY"
                         value={dateOfBirth.year}
-                        onChange={(e) => handleDateChange("year", e.target.value)}
+                        onChange={(e) => handleDateChange('year', e.target.value)}
                         disabled={isLoading}
-                        className={`h-12 w-24 text-center text-lg border-2 ${dateErrors.year ? "border-destructive focus-visible:ring-destructive" : "border-foreground"}`}
+                        className={`h-12 w-24 text-center text-lg border-2 ${dateErrors.year ? 'border-destructive focus-visible:ring-destructive' : 'border-foreground'}`}
                         maxLength={4}
                       />
-                      {dateErrors.year && (
-                        <p className="text-xs text-destructive max-w-24">{dateErrors.year}</p>
-                      )}
+                      {dateErrors.year && <p className="text-xs text-destructive max-w-24">{dateErrors.year}</p>}
                     </div>
                   </div>
                 </div>
 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isLoading}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
@@ -621,44 +566,40 @@ export default function LoginPage() {
                       Signing in...
                     </>
                   ) : (
-                    "Continue"
+                    'Continue'
                   )}
                 </Button>
               </form>
-
-              <div className="mt-6">
-                <button
-                  type="button"
-                  onClick={() => setStep("document_number")}
-                  className="text-primary hover:underline text-sm"
-                >
-                  Back
-                </button>
-              </div>
             </div>
           </div>
         </div>
         <GovFooter />
       </main>
-    )
+    );
   }
 
   // Step 2: Document Number
-  if (step === "document_number") {
+  if (step === 'document_number') {
     return (
       <main className="min-h-screen bg-background">
         <div className="min-h-screen flex">
           <Branding />
-          <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-            <div className="w-full max-w-md">
+          <div className="flex-1 flex items-center justify-center p-6 g:p-12">
+            <div className="w-full max-w-lg">
               <MobileHeader />
-
+              <button
+                type="button"
+                onClick={() => setStep('document')}
+                className="text-primary hover:underline text-sm mb-6 flex items-center gap-1"
+              >
+                <span>&lt;</span> Back
+              </button>
               <p className="text-muted-foreground mb-2">Sign in</p>
-              <h1 className="text-2xl font-bold text-foreground mb-8 text-balance">
-                {getDocumentTitle()}
-              </h1>
+              <h1 className="text-2xl font-bold text-foreground mb-4 text-balance">{getDocumentTitle()}</h1>
 
-              {documentType === "biometric_card" && <BiometricCardIllustration />}
+              {documentType === 'biometric_card' && (
+                <Image src="/permit-number.png" alt="Biometric Card" width={360} height={360} />
+              )}
 
               {error && (
                 <Alert variant="destructive" className="mb-6">
@@ -668,10 +609,11 @@ export default function LoginPage() {
               )}
 
               <div className="space-y-6">
-                {documentType === "customer_number" ? (
+                {documentType === 'customer_number' ? (
                   <div className="space-y-4">
                     <p className="text-muted-foreground leading-relaxed">
-                      You will have a UKVI customer number if you did not use an identity document to create your account.
+                      You will have a UKVI customer number if you did not use an identity document to create your
+                      account.
                     </p>
                     <p className="text-sm text-foreground">
                       Your UKVI customer number is 10 characters long and starts with KX, for example KX12345678.
@@ -685,8 +627,8 @@ export default function LoginPage() {
                         type="text"
                         value={documentNumber}
                         onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, "").slice(0, 8)
-                          setDocumentNumber(value)
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 8);
+                          setDocumentNumber(value);
                         }}
                         disabled={isLoading}
                         placeholder=""
@@ -712,7 +654,7 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                <Button 
+                <Button
                   onClick={handleContinueToDateOfBirth}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
@@ -720,22 +662,9 @@ export default function LoginPage() {
                 </Button>
 
                 <div>
-                  <Link 
-                    href="/login/recover" 
-                    className="text-primary hover:underline text-sm"
-                  >
+                  <Link href="/login/recover" className="text-primary hover:underline text-sm">
                     {getHelpLink()}
                   </Link>
-                </div>
-
-                <div className="pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setStep("document")}
-                    className="text-primary hover:underline text-sm"
-                  >
-                    Back
-                  </button>
                 </div>
               </div>
             </div>
@@ -743,7 +672,7 @@ export default function LoginPage() {
         </div>
         <GovFooter />
       </main>
-    )
+    );
   }
 
   // Step 1: Document Selection
@@ -751,8 +680,8 @@ export default function LoginPage() {
     <main className="min-h-screen bg-background">
       <div className="min-h-screen flex">
         <Branding />
-        <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-          <div className="w-full max-w-md">
+        <div className="flex-1 flex items-center justify-center p-6 g:p-12">
+          <div className="w-full max-w-lg">
             <MobileHeader />
 
             <p className="text-muted-foreground mb-2">Sign in</p>
@@ -761,7 +690,8 @@ export default function LoginPage() {
             </h1>
 
             <p className="text-muted-foreground mb-8 leading-relaxed">
-              This is usually the document you used when you created your account. If you have added a new document to your account, use the most recent document to sign in.
+              This is usually the document you used when you created your account. If you have added a new document to
+              your account, use the most recent document to sign in.
             </p>
 
             {error && (
@@ -774,36 +704,28 @@ export default function LoginPage() {
             <RadioGroup
               value={documentType}
               onValueChange={(value) => {
-                setDocumentType(value as DocumentType)
-                setError("")
+                setDocumentType(value as DocumentType);
+                setError('');
               }}
               className="space-y-5 mb-8"
             >
               <div className="flex items-center space-x-4">
-                <RadioGroupItem 
-                  value="passport" 
-                  id="passport"
-                  className="h-9 w-9 border-2 border-foreground"
-                />
+                <RadioGroupItem value="passport" id="passport" className="h-9 w-9 border-2 border-foreground" />
                 <Label htmlFor="passport" className="text-lg font-normal cursor-pointer">
                   Passport
                 </Label>
               </div>
 
               <div className="flex items-center space-x-4">
-                <RadioGroupItem 
-                  value="national_id" 
-                  id="national_id"
-                  className="h-9 w-9 border-2 border-foreground"
-                />
+                <RadioGroupItem value="national_id" id="national_id" className="h-9 w-9 border-2 border-foreground" />
                 <Label htmlFor="national_id" className="text-lg font-normal cursor-pointer">
                   National identity card
                 </Label>
               </div>
 
               <div className="flex items-center space-x-4">
-                <RadioGroupItem 
-                  value="biometric_card" 
+                <RadioGroupItem
+                  value="biometric_card"
                   id="biometric_card"
                   className="h-9 w-9 border-2 border-foreground"
                 />
@@ -815,8 +737,8 @@ export default function LoginPage() {
               <p className="text-muted-foreground text-base py-1">or</p>
 
               <div className="flex items-center space-x-4">
-                <RadioGroupItem 
-                  value="customer_number" 
+                <RadioGroupItem
+                  value="customer_number"
                   id="customer_number"
                   className="h-9 w-9 border-2 border-foreground"
                 />
@@ -826,7 +748,7 @@ export default function LoginPage() {
               </div>
             </RadioGroup>
 
-            <Button 
+            <Button
               onClick={handleContinueToDocumentNumber}
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
@@ -834,10 +756,7 @@ export default function LoginPage() {
             </Button>
 
             <div className="mt-6">
-              <Link 
-                href="/login/recover" 
-                className="text-primary hover:underline text-sm"
-              >
+              <Link href="/login/recover" className="text-primary hover:underline text-sm">
                 I do not know which identity document I use to sign in
               </Link>
             </div>
@@ -846,5 +765,5 @@ export default function LoginPage() {
       </div>
       <GovFooter />
     </main>
-  )
+  );
 }
