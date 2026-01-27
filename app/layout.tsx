@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="en-GB">
       <body className={`${inter.className} antialiased`}>
         <AuthProvider>{children}</AuthProvider>
         <Analytics />

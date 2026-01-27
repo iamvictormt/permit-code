@@ -27,9 +27,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -57,21 +55,21 @@ const verificationLevelBadge = (level: VerificationLevel) => {
       return (
         <Badge className="bg-accent/10 text-accent border-0">
           <ShieldCheck className="w-3 h-3 mr-1" />
-          Alto
+          High
         </Badge>
       )
     case "MEDIUM":
       return (
         <Badge className="bg-primary/10 text-primary border-0">
           <Shield className="w-3 h-3 mr-1" />
-          Médio
+          Medium
         </Badge>
       )
     case "LOW":
       return (
         <Badge variant="secondary">
           <ShieldAlert className="w-3 h-3 mr-1" />
-          Baixo
+          Low
         </Badge>
       )
   }
@@ -80,11 +78,11 @@ const verificationLevelBadge = (level: VerificationLevel) => {
 const statusBadge = (status: AccountStatus) => {
   switch (status) {
     case "ACTIVE":
-      return <Badge className="bg-accent text-accent-foreground">Ativo</Badge>
+      return <Badge className="bg-accent text-accent-foreground">Active</Badge>
     case "SUSPENDED":
-      return <Badge variant="secondary">Suspenso</Badge>
+      return <Badge variant="secondary">Suspended</Badge>
     case "BLOCKED":
-      return <Badge variant="destructive">Bloqueado</Badge>
+      return <Badge variant="destructive">Blocked</Badge>
   }
 }
 
@@ -116,14 +114,14 @@ export default function UsersPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>Usuários</CardTitle>
+              <CardTitle>Users</CardTitle>
               <CardDescription>
-                Gerencie os usuários e suas permissões
+                Manage users and their permissions
               </CardDescription>
             </div>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              Novo Usuário
+              New User
             </Button>
           </div>
         </CardHeader>
@@ -133,7 +131,7 @@ export default function UsersPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por nome ou email..."
+                placeholder="Search by name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -144,10 +142,10 @@ export default function UsersPage() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os status</SelectItem>
-                <SelectItem value="ACTIVE">Ativo</SelectItem>
-                <SelectItem value="SUSPENDED">Suspenso</SelectItem>
-                <SelectItem value="BLOCKED">Bloqueado</SelectItem>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="ACTIVE">Active</SelectItem>
+                <SelectItem value="SUSPENDED">Suspended</SelectItem>
+                <SelectItem value="BLOCKED">Blocked</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -157,11 +155,11 @@ export default function UsersPage() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead>Usuário</TableHead>
-                  <TableHead className="hidden md:table-cell">Verificação</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead className="hidden md:table-cell">Verification</TableHead>
                   <TableHead className="hidden sm:table-cell">Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">Documentos</TableHead>
-                  <TableHead className="hidden lg:table-cell">Criado em</TableHead>
+                  <TableHead className="hidden lg:table-cell">Documents</TableHead>
+                  <TableHead className="hidden lg:table-cell">Created at</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -193,12 +191,12 @@ export default function UsersPage() {
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       <span className="text-sm text-muted-foreground">
-                        {user.documents.length} documento(s)
+                        {user.documents.length} document(s)
                       </span>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       <span className="text-sm text-muted-foreground">
-                        {new Date(user.created_at).toLocaleDateString("pt-BR")}
+                        {new Date(user.created_at).toLocaleDateString("en-GB")}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -206,24 +204,24 @@ export default function UsersPage() {
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
                             <MoreHorizontal className="w-4 h-4" />
-                            <span className="sr-only">Ações</span>
+                            <span className="sr-only">Actions</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => handleViewUser(user)}>
                             <Eye className="w-4 h-4 mr-2" />
-                            Ver detalhes
+                            View details
                           </DropdownMenuItem>
                           <DropdownMenuItem>
                             <Edit className="w-4 h-4 mr-2" />
-                            Editar
+                            Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-destructive">
                             <Trash2 className="w-4 h-4 mr-2" />
-                            Excluir
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -236,7 +234,7 @@ export default function UsersPage() {
 
           {filteredUsers.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Nenhum usuário encontrado</p>
+              <p className="text-muted-foreground">No users found</p>
             </div>
           )}
         </CardContent>
@@ -246,9 +244,9 @@ export default function UsersPage() {
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Detalhes do Usuário</DialogTitle>
+            <DialogTitle>User Details</DialogTitle>
             <DialogDescription>
-              Informações completas do usuário selecionado
+              Complete information for the selected user
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
@@ -277,7 +275,7 @@ export default function UsersPage() {
               {/* Documents */}
               <div>
                 <h4 className="text-sm font-semibold text-foreground mb-3">
-                  Documentos
+                  Documents
                 </h4>
                 <div className="space-y-2">
                   {selectedUser.documents.length > 0 ? (
@@ -289,10 +287,10 @@ export default function UsersPage() {
                         <div>
                           <p className="text-sm font-medium text-foreground">
                             {doc.type === "PASSPORT"
-                              ? "Passaporte"
+                              ? "Passport"
                               : doc.type === "ID_CARD"
-                                ? "RG/CNH"
-                                : "Crachá"}
+                                ? "ID Card"
+                                : "Employee Card"}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {doc.number}
@@ -306,13 +304,13 @@ export default function UsersPage() {
                               : ""
                           }
                         >
-                          {doc.verified ? "Verificado" : "Pendente"}
+                          {doc.verified ? "Verified" : "Pending"}
                         </Badge>
                       </div>
                     ))
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      Nenhum documento cadastrado
+                      No documents registered
                     </p>
                   )}
                 </div>
@@ -321,7 +319,7 @@ export default function UsersPage() {
               {/* Status */}
               <div>
                 <h4 className="text-sm font-semibold text-foreground mb-3">
-                  Status de Acesso
+                  Access Status
                 </h4>
                 <div className="space-y-2">
                   {selectedUser.statuses.length > 0 ? (
@@ -333,21 +331,21 @@ export default function UsersPage() {
                         <div>
                           <p className="text-sm font-medium text-foreground">
                             {status.status_type === "EMPLOYEE"
-                              ? "Funcionário"
+                              ? "Employee"
                               : status.status_type === "CONTRACTOR"
-                                ? "Terceirizado"
-                                : "Visitante"}
+                                ? "Contractor"
+                                : "Visitor"}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {new Date(status.start_date).toLocaleDateString(
-                              "pt-BR"
+                              "en-GB"
                             )}{" "}
                             -{" "}
                             {status.end_date
                               ? new Date(status.end_date).toLocaleDateString(
-                                  "pt-BR"
+                                  "en-GB"
                                 )
-                              : "Sem data fim"}
+                              : "No end date"}
                           </p>
                         </div>
                         <Badge
@@ -365,16 +363,16 @@ export default function UsersPage() {
                           }
                         >
                           {status.situation === "VALID"
-                            ? "Válido"
+                            ? "Valid"
                             : status.situation === "EXPIRED"
-                              ? "Expirado"
-                              : "Revogado"}
+                              ? "Expired"
+                              : "Revoked"}
                         </Badge>
                       </div>
                     ))
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      Nenhum status cadastrado
+                      No status registered
                     </p>
                   )}
                 </div>
@@ -383,7 +381,7 @@ export default function UsersPage() {
               {/* Share Codes */}
               <div>
                 <h4 className="text-sm font-semibold text-foreground mb-3">
-                  Códigos de Compartilhamento
+                  Share Codes
                 </h4>
                 <div className="space-y-2">
                   {selectedUser.share_codes.length > 0 ? (
@@ -397,16 +395,16 @@ export default function UsersPage() {
                             {code.code}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {code.purpose || "Sem descrição"}
+                            {code.purpose || "No description"}
                           </p>
                         </div>
                         <div className="text-right">
                           <p className="text-xs text-muted-foreground">
-                            Expira em
+                            Expires on
                           </p>
                           <p className="text-xs font-medium text-foreground">
                             {new Date(code.expires_at).toLocaleDateString(
-                              "pt-BR"
+                              "en-GB"
                             )}
                           </p>
                         </div>
@@ -414,7 +412,7 @@ export default function UsersPage() {
                     ))
                   ) : (
                     <p className="text-sm text-muted-foreground">
-                      Nenhum código ativo
+                      No active codes
                     </p>
                   )}
                 </div>

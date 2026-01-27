@@ -5,6 +5,7 @@ import React from "react"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { SidebarProvider } from "@/lib/sidebar-context"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { DashboardHeader } from "@/components/dashboard/header"
 import { Loader2 } from "lucide-react"
@@ -32,14 +33,16 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <DashboardSidebar />
-      <div className="flex-1 flex flex-col lg:ml-64">
-        <DashboardHeader />
-        <main className="flex-1 p-4 lg:p-6">
-          {children}
-        </main>
+    <SidebarProvider>
+      <div className="min-h-screen bg-background flex">
+        <DashboardSidebar />
+        <div className="flex-1 flex flex-col lg:ml-64">
+          <DashboardHeader />
+          <main className="flex-1 p-4 lg:p-6">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   )
 }

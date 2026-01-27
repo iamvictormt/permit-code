@@ -2,21 +2,22 @@
 
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { useSidebar } from "@/lib/sidebar-context"
 import { Menu, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
-  "/dashboard/users": "Usuários",
-  "/dashboard/documents": "Documentos",
-  "/dashboard/share-codes": "Códigos de Compartilhamento",
-  "/dashboard/settings": "Configurações",
+  "/dashboard/users": "Users",
+  "/dashboard/documents": "Documents",
+  "/dashboard/share-codes": "Share Codes",
 }
 
 export function DashboardHeader() {
   const pathname = usePathname()
   const { user } = useAuth()
+  const { toggleMobile } = useSidebar()
 
   const title = pageTitles[pathname] || "Dashboard"
 
@@ -27,18 +28,15 @@ export function DashboardHeader() {
           variant="ghost"
           size="icon"
           className="lg:hidden"
-          onClick={() => {
-            // Dispatch custom event for mobile toggle
-            window.dispatchEvent(new CustomEvent("toggle-sidebar"))
-          }}
+          onClick={toggleMobile}
         >
           <Menu className="w-5 h-5" />
-          <span className="sr-only">Abrir menu</span>
+          <span className="sr-only">Open menu</span>
         </Button>
         <div>
           <h2 className="text-lg font-semibold text-foreground">{title}</h2>
           <p className="text-xs text-muted-foreground hidden sm:block">
-            Bem-vindo, {user?.full_name}
+            Welcome, {user?.full_name}
           </p>
         </div>
       </div>
@@ -48,12 +46,12 @@ export function DashboardHeader() {
           variant="secondary"
           className="hidden sm:inline-flex text-xs font-normal"
         >
-          {user?.role === "admin" ? "Administrador" : "Usuário"}
+          {user?.role === "admin" ? "Administrator" : "User"}
         </Badge>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
-          <span className="sr-only">Notificações</span>
+          <span className="sr-only">Notifications</span>
         </Button>
       </div>
     </header>

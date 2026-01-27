@@ -46,11 +46,11 @@ const documentTypeIcon = (type: DocumentType) => {
 const documentTypeName = (type: DocumentType) => {
   switch (type) {
     case "PASSPORT":
-      return "Passaporte"
+      return "Passport"
     case "ID_CARD":
-      return "RG/CNH"
+      return "ID Card"
     case "EMPLOYEE_CARD":
-      return "Crachá"
+      return "Employee Card"
   }
 }
 
@@ -83,9 +83,9 @@ export default function DocumentsPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>Documentos</CardTitle>
+              <CardTitle>Documents</CardTitle>
               <CardDescription>
-                Gerencie e verifique os documentos dos usuários
+                Manage and verify user documents
               </CardDescription>
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function DocumentsPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por número ou usuário..."
+                placeholder="Search by number or user..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -104,23 +104,23 @@ export default function DocumentsPage() {
             </div>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Tipo" />
+                <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os tipos</SelectItem>
-                <SelectItem value="PASSPORT">Passaporte</SelectItem>
-                <SelectItem value="ID_CARD">RG/CNH</SelectItem>
-                <SelectItem value="EMPLOYEE_CARD">Crachá</SelectItem>
+                <SelectItem value="all">All types</SelectItem>
+                <SelectItem value="PASSPORT">Passport</SelectItem>
+                <SelectItem value="ID_CARD">ID Card</SelectItem>
+                <SelectItem value="EMPLOYEE_CARD">Employee Card</SelectItem>
               </SelectContent>
             </Select>
             <Select value={verifiedFilter} onValueChange={setVerifiedFilter}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Verificação" />
+                <SelectValue placeholder="Verification" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="verified">Verificados</SelectItem>
-                <SelectItem value="pending">Pendentes</SelectItem>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="verified">Verified</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -130,11 +130,11 @@ export default function DocumentsPage() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead>Documento</TableHead>
-                  <TableHead className="hidden md:table-cell">Usuário</TableHead>
-                  <TableHead className="hidden sm:table-cell">Tipo</TableHead>
+                  <TableHead>Document</TableHead>
+                  <TableHead className="hidden md:table-cell">User</TableHead>
+                  <TableHead className="hidden sm:table-cell">Type</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">Verificado em</TableHead>
+                  <TableHead className="hidden lg:table-cell">Verified at</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -175,19 +175,19 @@ export default function DocumentsPage() {
                       {doc.verified ? (
                         <Badge className="bg-accent text-accent-foreground">
                           <CheckCircle className="w-3 h-3 mr-1" />
-                          Verificado
+                          Verified
                         </Badge>
                       ) : (
                         <Badge variant="secondary">
                           <XCircle className="w-3 h-3 mr-1" />
-                          Pendente
+                          Pending
                         </Badge>
                       )}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       <span className="text-sm text-muted-foreground">
                         {doc.verified_at
-                          ? new Date(doc.verified_at).toLocaleDateString("pt-BR")
+                          ? new Date(doc.verified_at).toLocaleDateString("en-GB")
                           : "-"}
                       </span>
                     </TableCell>
@@ -196,26 +196,26 @@ export default function DocumentsPage() {
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
                             <MoreHorizontal className="w-4 h-4" />
-                            <span className="sr-only">Ações</span>
+                            <span className="sr-only">Actions</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           {!doc.verified && (
                             <DropdownMenuItem>
                               <CheckCircle className="w-4 h-4 mr-2" />
-                              Verificar documento
+                              Verify document
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem>
                             <FileText className="w-4 h-4 mr-2" />
-                            Ver documento
+                            View document
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-destructive">
                             <XCircle className="w-4 h-4 mr-2" />
-                            Invalidar
+                            Invalidate
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -228,7 +228,7 @@ export default function DocumentsPage() {
 
           {filteredDocuments.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Nenhum documento encontrado</p>
+              <p className="text-muted-foreground">No documents found</p>
             </div>
           )}
         </CardContent>

@@ -31,7 +31,7 @@ export default function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
-          title="Usuários Ativos"
+          title="Active Users"
           value={activeUsers}
           description={`${mockUsers.length} total`}
           icon={Users}
@@ -39,23 +39,23 @@ export default function DashboardPage() {
           trend={{ value: 12, isPositive: true }}
         />
         <StatsCard
-          title="Documentos Verificados"
+          title="Verified Documents"
           value={verifiedDocs}
           description={`${mockDocuments.length} total`}
           icon={FileCheck}
           variant="accent"
         />
         <StatsCard
-          title="Códigos Ativos"
+          title="Active Codes"
           value={activeCodes}
-          description="Códigos de compartilhamento"
+          description="Share codes"
           icon={QrCode}
           variant="default"
         />
         <StatsCard
-          title="Pendente de Verificação"
+          title="Pending Verification"
           value={pendingVerifications}
-          description="Documentos aguardando"
+          description="Documents awaiting"
           icon={AlertTriangle}
           variant="warning"
         />
@@ -66,12 +66,12 @@ export default function DashboardPage() {
         <Card className="border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
-              <CardTitle className="text-base font-semibold">Usuários Recentes</CardTitle>
-              <CardDescription>Últimos usuários cadastrados</CardDescription>
+              <CardTitle className="text-base font-semibold">Recent Users</CardTitle>
+              <CardDescription>Latest registered users</CardDescription>
             </div>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/dashboard/users">
-                Ver todos
+                View all
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </Button>
@@ -107,10 +107,10 @@ export default function DashboardPage() {
                     className="text-xs"
                   >
                     {user.account_status === "ACTIVE"
-                      ? "Ativo"
+                      ? "Active"
                       : user.account_status === "SUSPENDED"
-                        ? "Suspenso"
-                        : "Bloqueado"}
+                        ? "Suspended"
+                        : "Blocked"}
                   </Badge>
                 </div>
               ))}
@@ -122,12 +122,12 @@ export default function DashboardPage() {
         <Card className="border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
-              <CardTitle className="text-base font-semibold">Expirando em Breve</CardTitle>
-              <CardDescription>Status com data de expiração próxima</CardDescription>
+              <CardTitle className="text-base font-semibold">Expiring Soon</CardTitle>
+              <CardDescription>Status with upcoming expiration date</CardDescription>
             </div>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/dashboard/users">
-                Ver todos
+                View all
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </Button>
@@ -148,24 +148,24 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-foreground">
-                            {user?.full_name || "Usuário"}
+                            {user?.full_name || "User"}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {status.status_type === "EMPLOYEE"
-                              ? "Funcionário"
+                              ? "Employee"
                               : status.status_type === "CONTRACTOR"
-                                ? "Terceirizado"
-                                : "Visitante"}
+                                ? "Contractor"
+                                : "Visitor"}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="text-xs font-medium text-foreground">
-                          Expira em
+                          Expires on
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {status.end_date
-                            ? new Date(status.end_date).toLocaleDateString("pt-BR")
+                            ? new Date(status.end_date).toLocaleDateString("en-GB")
                             : "-"}
                         </p>
                       </div>
@@ -175,7 +175,7 @@ export default function DashboardPage() {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Nenhum status expirando em breve</p>
+                  <p className="text-sm">No status expiring soon</p>
                 </div>
               )}
             </div>
@@ -186,33 +186,27 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <Card className="border-border">
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Ações Rápidas</CardTitle>
-          <CardDescription>Acesse rapidamente as funcionalidades principais</CardDescription>
+          <CardTitle className="text-base font-semibold">Quick Actions</CardTitle>
+          <CardDescription>Quickly access the main features</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <Button variant="outline" className="h-auto py-4 flex-col gap-2 bg-transparent" asChild>
               <Link href="/dashboard/users">
                 <Users className="w-5 h-5" />
-                <span>Gerenciar Usuários</span>
+                <span>Manage Users</span>
               </Link>
             </Button>
             <Button variant="outline" className="h-auto py-4 flex-col gap-2 bg-transparent" asChild>
               <Link href="/dashboard/documents">
                 <FileCheck className="w-5 h-5" />
-                <span>Verificar Documentos</span>
+                <span>Verify Documents</span>
               </Link>
             </Button>
             <Button variant="outline" className="h-auto py-4 flex-col gap-2 bg-transparent" asChild>
               <Link href="/dashboard/share-codes">
                 <QrCode className="w-5 h-5" />
-                <span>Gerar Código</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto py-4 flex-col gap-2 bg-transparent" asChild>
-              <Link href="/dashboard/settings">
-                <AlertTriangle className="w-5 h-5" />
-                <span>Configurações</span>
+                <span>Generate Code</span>
               </Link>
             </Button>
           </div>

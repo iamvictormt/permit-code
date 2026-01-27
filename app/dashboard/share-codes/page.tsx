@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
@@ -74,9 +73,9 @@ export default function ShareCodesPage() {
       (expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     )
 
-    if (diffDays < 0) return { label: "Expirado", variant: "destructive" as const }
-    if (diffDays <= 3) return { label: `${diffDays}d restantes`, variant: "secondary" as const }
-    return { label: `${diffDays}d restantes`, variant: "default" as const }
+    if (diffDays < 0) return { label: "Expired", variant: "destructive" as const }
+    if (diffDays <= 3) return { label: `${diffDays}d remaining`, variant: "secondary" as const }
+    return { label: `${diffDays}d remaining`, variant: "default" as const }
   }
 
   return (
@@ -85,28 +84,28 @@ export default function ShareCodesPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle>Códigos de Compartilhamento</CardTitle>
+              <CardTitle>Share Codes</CardTitle>
               <CardDescription>
-                Gerencie os códigos de verificação e compartilhamento
+                Manage verification and share codes
               </CardDescription>
             </div>
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="w-4 h-4 mr-2" />
-                  Novo Código
+                  New Code
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Gerar Novo Código</DialogTitle>
+                  <DialogTitle>Generate New Code</DialogTitle>
                   <DialogDescription>
-                    Crie um código de compartilhamento para verificação
+                    Create a share code for verification
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="user">Usuário</Label>
+                    <Label htmlFor="user">User</Label>
                     <Select
                       value={newCode.user_id}
                       onValueChange={(value) =>
@@ -114,7 +113,7 @@ export default function ShareCodesPage() {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione um usuário" />
+                        <SelectValue placeholder="Select a user" />
                       </SelectTrigger>
                       <SelectContent>
                         {mockUsers.map((user) => (
@@ -126,10 +125,10 @@ export default function ShareCodesPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="purpose">Finalidade</Label>
+                    <Label htmlFor="purpose">Purpose</Label>
                     <Textarea
                       id="purpose"
-                      placeholder="Ex: Acesso temporário ao setor de TI"
+                      placeholder="e.g., Temporary access to IT department"
                       value={newCode.purpose}
                       onChange={(e) =>
                         setNewCode({ ...newCode, purpose: e.target.value })
@@ -137,7 +136,7 @@ export default function ShareCodesPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="expires">Validade</Label>
+                    <Label htmlFor="expires">Validity</Label>
                     <Select
                       value={newCode.expires_days}
                       onValueChange={(value) =>
@@ -148,18 +147,18 @@ export default function ShareCodesPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">1 dia</SelectItem>
-                        <SelectItem value="3">3 dias</SelectItem>
-                        <SelectItem value="7">7 dias</SelectItem>
-                        <SelectItem value="14">14 dias</SelectItem>
-                        <SelectItem value="30">30 dias</SelectItem>
+                        <SelectItem value="1">1 day</SelectItem>
+                        <SelectItem value="3">3 days</SelectItem>
+                        <SelectItem value="7">7 days</SelectItem>
+                        <SelectItem value="14">14 days</SelectItem>
+                        <SelectItem value="30">30 days</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="p-4 bg-muted rounded-lg">
                     <p className="text-xs text-muted-foreground mb-2">
-                      Código gerado
+                      Generated code
                     </p>
                     <p className="text-2xl font-mono font-bold text-foreground tracking-wider">
                       {generateCode()}
@@ -168,10 +167,10 @@ export default function ShareCodesPage() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-                    Cancelar
+                    Cancel
                   </Button>
                   <Button onClick={() => setIsCreateOpen(false)}>
-                    Criar Código
+                    Create Code
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -223,7 +222,7 @@ export default function ShareCodesPage() {
                       <div className="flex items-center gap-2 text-sm">
                         <User className="w-4 h-4 text-muted-foreground" />
                         <span className="text-foreground">
-                          {code.user?.full_name || "Usuário não encontrado"}
+                          {code.user?.full_name || "User not found"}
                         </span>
                       </div>
 
@@ -235,8 +234,8 @@ export default function ShareCodesPage() {
 
                       <div className="flex items-center justify-between pt-3 border-t border-border">
                         <span className="text-xs text-muted-foreground">
-                          Expira:{" "}
-                          {new Date(code.expires_at).toLocaleDateString("pt-BR")}
+                          Expires:{" "}
+                          {new Date(code.expires_at).toLocaleDateString("en-GB")}
                         </span>
                         <Button
                           variant="ghost"
@@ -257,11 +256,11 @@ export default function ShareCodesPage() {
             <div className="text-center py-12">
               <QrCode className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
               <p className="text-muted-foreground">
-                Nenhum código de compartilhamento criado
+                No share codes created
               </p>
               <Button className="mt-4" onClick={() => setIsCreateOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />
-                Criar primeiro código
+                Create first code
               </Button>
             </div>
           )}

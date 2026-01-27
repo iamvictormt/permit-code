@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
+import { useSidebar } from "@/lib/sidebar-context"
 import {
   Shield,
   LayoutDashboard,
@@ -12,10 +13,8 @@ import {
   QrCode,
   LogOut,
   X,
-  Settings
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
 
 const navItems = [
   {
@@ -43,7 +42,7 @@ const navItems = [
 export function DashboardSidebar() {
   const pathname = usePathname()
   const { user, logout } = useAuth()
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const { mobileOpen, setMobileOpen } = useSidebar()
 
   return (
     <>
@@ -131,26 +130,6 @@ export function DashboardSidebar() {
           </Button>
         </div>
       </aside>
-
-      {/* Mobile toggle button (exported for header) */}
-      <MobileToggleContext.Provider value={{ mobileOpen, setMobileOpen }}>
-        {null}
-      </MobileToggleContext.Provider>
     </>
   )
 }
-
-// Context for mobile toggle
-import { createContext, useContext } from "react"
-
-interface MobileToggleContextType {
-  mobileOpen: boolean
-  setMobileOpen: (open: boolean) => void
-}
-
-const MobileToggleContext = createContext<MobileToggleContextType>({
-  mobileOpen: false,
-  setMobileOpen: () => {},
-})
-
-export const useMobileToggle = () => useContext(MobileToggleContext)
