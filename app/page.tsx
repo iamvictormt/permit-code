@@ -1,25 +1,21 @@
-"use client"
+'use client';
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/lib/auth-context"
-import { Loader2 } from "lucide-react"
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
+import { Loader2 } from 'lucide-react';
 
 export default function Home() {
-  const { isAuthenticated } = useAuth()
-  const router = useRouter()
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dashboard")
-    } else {
-      router.push("/login")
-    }
-  }, [isAuthenticated, router])
+    router.push('/login');
+  }, [router]);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
     </main>
-  )
+  );
 }

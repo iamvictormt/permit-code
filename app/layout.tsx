@@ -8,9 +8,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'PermitCode – Employee Work Permit & HR Compliance Management Software | UK',
-  description:
-    'PermitCode is an HR-focused work permit and employee compliance management system for UK organisations. Control internal work authorisations, manage workforce documentation, track training and ensure workplace compliance across teams and contractors.',
+  title: 'PermitCode - Work Permit Management',
+  description: 'Work permit code management system',
 };
 
 export default function RootLayout({

@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ChevronLeft, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { GovFooter } from "@/components/gov-footer"
 
 export default function RecoverAccountPage() {
   // Branding component (same as login page)
@@ -115,14 +116,15 @@ export default function RecoverAccountPage() {
             </h2>
             <p className="text-foreground">
               If you cannot recover your account,{" "}
-              <Link href="#" className="text-primary hover:underline">
+              <span className="text-primary hover:underline cursor-pointer">
                 contact UKVI for help
-              </Link>
+              </span>
               .
             </p>
           </div>
         </div>
       </div>
+      <GovFooter />
     </main>
   )
 }

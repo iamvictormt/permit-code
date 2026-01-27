@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, AlertCircle, Shield } from "lucide-react"
 import Link from "next/link"
+import { GovFooter } from "@/components/gov-footer"
 
 type DocumentType = "passport" | "national_id" | "biometric_card" | "customer_number"
 
@@ -79,12 +80,16 @@ const validateDate = (dob: DateOfBirth): DateErrors => {
   return errors
 }
 
+type SecurityCodeMethod = "sms" | "email"
+
 export default function LoginPage() {
-  const [step, setStep] = useState<"document" | "document_number" | "date_of_birth">("document")
+  const [step, setStep] = useState<"document" | "document_number" | "date_of_birth" | "security_code" | "verify_code">("document")
   const [documentType, setDocumentType] = useState<DocumentType | "">("")
   const [documentNumber, setDocumentNumber] = useState("")
   const [dateOfBirth, setDateOfBirth] = useState<DateOfBirth>({ day: "", month: "", year: "" })
   const [dateErrors, setDateErrors] = useState<DateErrors>({})
+  const [securityCodeMethod, setSecurityCodeMethod] = useState<SecurityCodeMethod | "">("")
+  const [securityCode, setSecurityCode] = useState("")
   const [error, setError] = useState("")
   const { login, isLoading } = useAuth()
   const router = useRouter()
@@ -107,7 +112,7 @@ export default function LoginPage() {
     setStep("date_of_birth")
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleContinueToSecurityCode = (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setDateErrors({})
@@ -118,10 +123,28 @@ export default function LoginPage() {
       return
     }
 
+    setStep("security_code")
+  }
+
+  const handleContinueToVerifyCode = () => {
+    if (!securityCodeMethod) {
+      setError("Please select how you want to receive your security code")
+      return
+    }
+    setError("")
+    setStep("verify_code")
+  }
+
+  const handleVerifyCode = async () => {
+    if (!securityCode || securityCode.length !== 6) {
+      setError("Please enter the 6-digit security code")
+      return
+    }
+
     const result = await login("admin@empresa.com", "admin123")
     
     if (result.success) {
-      router.push("/dashboard")
+      router.push("/profile")
     } else {
       setError(result.error || "Login failed")
     }
@@ -142,6 +165,10 @@ export default function LoginPage() {
     if (dateErrors[field]) {
       setDateErrors(prev => ({ ...prev, [field]: undefined }))
     }
+  }
+
+  const handleSubmit = () => {
+    // Placeholder for handleSubmit logic
   }
 
   const getDocumentTitle = () => {
@@ -287,6 +314,219 @@ export default function LoginPage() {
     </div>
   )
 
+  // Step 5: Verify Security Code
+  if (step === "verify_code") {
+    const maskedContact = securityCodeMethod === "email" 
+      ? "v***********p@gmail.com" 
+      : "075*****886"
+    const contactType = securityCodeMethod === "email" ? "email" : "text message"
+    const alternativeMethod = securityCodeMethod === "email" ? "phone number" : "email address"
+
+    return (
+      <main className="min-h-screen bg-background">
+        <div className="min-h-screen flex">
+          <Branding />
+          <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+            <div className="w-full max-w-md">
+              <MobileHeader />
+
+              <button
+                type="button"
+                onClick={() => setStep("security_code")}
+                className="text-primary hover:underline text-sm mb-6 flex items-center gap-1"
+              >
+                <span>&lt;</span> Back
+              </button>
+
+              <p className="text-muted-foreground mb-2">Sign in</p>
+              <h1 className="text-2xl font-bold text-foreground mb-6 text-balance">
+                Check your {securityCodeMethod === "email" ? "email" : "phone"}
+              </h1>
+
+              <p className="text-muted-foreground mb-2">
+                We have sent you a single-use, 6-digit security code by {contactType} to:
+              </p>
+              <p className="font-semibold text-foreground mb-4">{maskedContact}</p>
+              <p className="text-muted-foreground mb-6 text-sm">
+                It may take a few minutes to arrive. You need to use this code within 10 minutes or it will expire.
+              </p>
+
+              {error && (
+                <Alert variant="destructive" className="mb-6">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="securityCode" className="text-sm font-medium text-foreground">
+                    Security code
+                  </Label>
+                  <Input
+                    id="securityCode"
+                    type="text"
+                    inputMode="numeric"
+                    value={securityCode}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "").slice(0, 6)
+                      setSecurityCode(value)
+                      setError("")
+                    }}
+                    disabled={isLoading}
+                    className="h-12 text-lg border-2 border-foreground"
+                    maxLength={6}
+                  />
+                </div>
+
+                <Button 
+                  onClick={handleVerifyCode}
+                  disabled={isLoading}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    "Continue"
+                  )}
+                </Button>
+
+                <button
+                  type="button"
+                  className="text-primary hover:underline text-sm"
+                  onClick={() => {
+                    // In a real app, this would resend the code
+                    setError("")
+                  }}
+                >
+                  Resend security code
+                </button>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-border">
+                <h2 className="text-lg font-semibold text-foreground mb-3">Problems signing in</h2>
+                <p className="text-muted-foreground mb-3">
+                  If you do not have access to this {securityCodeMethod === "email" ? "email address" : "phone number"},{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSecurityCodeMethod(securityCodeMethod === "email" ? "sms" : "email")
+                      setStep("security_code")
+                    }}
+                    className="text-primary hover:underline"
+                  >
+                    use your {alternativeMethod} instead
+                  </button>
+                  .
+                </p>
+                <p className="text-muted-foreground">
+                  If you do not have access to your phone number and email address,{" "}
+                  <Link href="/login/recover" className="text-primary hover:underline">
+                    recover your account
+                  </Link>
+                  .
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <GovFooter />
+      </main>
+    )
+  }
+
+  // Step 4: Security Code Method
+  if (step === "security_code") {
+    return (
+      <main className="min-h-screen bg-background">
+        <div className="min-h-screen flex">
+          <Branding />
+          <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+            <div className="w-full max-w-md">
+              <MobileHeader />
+
+              <p className="text-muted-foreground mb-2">Sign in</p>
+              <h1 className="text-2xl font-bold text-foreground mb-8 text-balance">
+                How do you want to receive a security code?
+              </h1>
+
+              {error && (
+                <Alert variant="destructive" className="mb-6">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <RadioGroup
+                value={securityCodeMethod}
+                onValueChange={(value) => {
+                  setSecurityCodeMethod(value as SecurityCodeMethod)
+                  setError("")
+                }}
+                className="space-y-5 mb-8"
+              >
+                <div className="flex items-center space-x-4">
+                  <RadioGroupItem 
+                    value="sms" 
+                    id="sms"
+                    className="h-9 w-9 border-2 border-foreground"
+                  />
+                  <Label htmlFor="sms" className="text-lg font-normal cursor-pointer">
+                    Send a text message (SMS) to <span className="font-medium">075*****886</span>
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                  <RadioGroupItem 
+                    value="email" 
+                    id="email"
+                    className="h-9 w-9 border-2 border-foreground"
+                  />
+                  <Label htmlFor="email" className="text-lg font-normal cursor-pointer">
+                    Send an email to <span className="font-medium">v***********p@gmail.com</span>
+                  </Label>
+                </div>
+              </RadioGroup>
+
+              <Button 
+                onClick={handleContinueToVerifyCode}
+                disabled={isLoading}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                Continue
+              </Button>
+
+              <div className="mt-8 pt-6 border-t border-border">
+                <h2 className="text-lg font-semibold text-foreground mb-3">Problems signing in</h2>
+                <p className="text-muted-foreground">
+                  If you do not have access to the phone number and email address,{" "}
+                  <Link href="/login/recover" className="text-primary hover:underline">
+                    recover your account
+                  </Link>
+                  .
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <button
+                  type="button"
+                  onClick={() => setStep("date_of_birth")}
+                  className="text-primary hover:underline text-sm"
+                >
+                  Back
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <GovFooter />
+      </main>
+    )
+  }
+
   // Step 3: Date of Birth
   if (step === "date_of_birth") {
     return (
@@ -309,7 +549,7 @@ export default function LoginPage() {
                 </Alert>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleContinueToSecurityCode} className="space-y-6">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-foreground">
                     Date of birth
@@ -398,6 +638,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
+        <GovFooter />
       </main>
     )
   }
@@ -500,6 +741,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
+        <GovFooter />
       </main>
     )
   }
@@ -535,51 +777,51 @@ export default function LoginPage() {
                 setDocumentType(value as DocumentType)
                 setError("")
               }}
-              className="space-y-4 mb-8"
+              className="space-y-5 mb-8"
             >
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 <RadioGroupItem 
                   value="passport" 
                   id="passport"
-                  className="h-5 w-5 border-2 border-foreground"
+                  className="h-9 w-9 border-2 border-foreground"
                 />
-                <Label htmlFor="passport" className="text-sm font-normal cursor-pointer">
+                <Label htmlFor="passport" className="text-lg font-normal cursor-pointer">
                   Passport
                 </Label>
               </div>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 <RadioGroupItem 
                   value="national_id" 
                   id="national_id"
-                  className="h-5 w-5 border-2 border-foreground"
+                  className="h-9 w-9 border-2 border-foreground"
                 />
-                <Label htmlFor="national_id" className="text-sm font-normal cursor-pointer">
+                <Label htmlFor="national_id" className="text-lg font-normal cursor-pointer">
                   National identity card
                 </Label>
               </div>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 <RadioGroupItem 
                   value="biometric_card" 
                   id="biometric_card"
-                  className="h-5 w-5 border-2 border-foreground"
+                  className="h-9 w-9 border-2 border-foreground"
                 />
-                <Label htmlFor="biometric_card" className="text-sm font-normal cursor-pointer">
+                <Label htmlFor="biometric_card" className="text-lg font-normal cursor-pointer">
                   Biometric residence card or permit
                 </Label>
               </div>
 
-              <p className="text-muted-foreground text-sm py-1">or</p>
+              <p className="text-muted-foreground text-base py-1">or</p>
 
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 <RadioGroupItem 
                   value="customer_number" 
                   id="customer_number"
-                  className="h-5 w-5 border-2 border-foreground"
+                  className="h-9 w-9 border-2 border-foreground"
                 />
-                <Label htmlFor="customer_number" className="text-sm font-normal cursor-pointer">
-                  I use a customer number
+                <Label htmlFor="customer_number" className="text-lg font-normal cursor-pointer">
+                  I use a UKVI customer number
                 </Label>
               </div>
             </RadioGroup>
@@ -602,6 +844,7 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+      <GovFooter />
     </main>
   )
 }
