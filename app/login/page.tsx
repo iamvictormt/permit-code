@@ -468,25 +468,25 @@ export default function LoginPage() {
                 }}
                 className="space-y-5 mb-8"
               >
-                <div className="flex items-center space-x-4">
+                <div className="flex items-start space-x-4">
                   <RadioGroupItem 
                     value="sms" 
                     id="sms"
-                    className="h-9 w-9 border-2 border-foreground"
+                    className="h-9 w-9 min-w-[36px] border-2 border-foreground mt-0.5"
                   />
-                  <Label htmlFor="sms" className="text-lg font-normal cursor-pointer">
-                    Send a text message (SMS) to <span className="font-medium">075*****886</span>
+                  <Label htmlFor="sms" className="text-base sm:text-lg font-normal cursor-pointer leading-snug">
+                    Send a text message (SMS) to <span className="font-medium break-all">075*****886</span>
                   </Label>
                 </div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-start space-x-4">
                   <RadioGroupItem 
                     value="email" 
                     id="email"
-                    className="h-9 w-9 border-2 border-foreground"
+                    className="h-9 w-9 min-w-[36px] border-2 border-foreground mt-0.5"
                   />
-                  <Label htmlFor="email" className="text-lg font-normal cursor-pointer">
-                    Send an email to <span className="font-medium">v***********p@gmail.com</span>
+                  <Label htmlFor="email" className="text-base sm:text-lg font-normal cursor-pointer leading-snug">
+                    Send an email to <span className="font-medium break-all">v***********p@gmail.com</span>
                   </Label>
                 </div>
               </RadioGroup>
