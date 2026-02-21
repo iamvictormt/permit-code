@@ -251,7 +251,7 @@ export default function LoginPage() {
     setError('');
   };
 
-  const PageLayout = ({ children, showBack = true }: { children: React.ReactNode, showBack?: boolean }) => (
+  const PageLayout = ({ children, showBack = true }: { children: React.ReactNode; showBack?: boolean }) => (
     <div className="min-h-screen flex flex-col bg-white">
       <GovHeader />
       <BetaBanner />
@@ -259,7 +259,7 @@ export default function LoginPage() {
         {showBack && (
           <button
             onClick={goBack}
-            className="text-govuk-black underline hover:text-govuk-blue mb-8 flex items-center gap-1 text-lg"
+            className="text-govuk-black underline hover:hover:decoration-3 mb-8 flex items-center gap-1 text-lg cursor-pointer "
           >
             <span className="inline-block border-l-2 border-b-2 border-current w-2.5 h-2.5 rotate-45 mr-1 mb-0.5"></span>
             Back
@@ -270,7 +270,9 @@ export default function LoginPage() {
             <div className="border-4 border-destructive p-4 mb-8">
               <h2 className="text-destructive text-xl font-bold mb-2">There is a problem</h2>
               <ul className="text-destructive font-bold underline">
-                <li><a href="#error-link">{error}</a></li>
+                <li>
+                  <a href="#error-link">{error}</a>
+                </li>
               </ul>
             </div>
           )}
@@ -287,7 +289,8 @@ export default function LoginPage() {
         <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
         <h1 className="text-4xl font-bold mb-6">Check your {securityCodeMethod === 'email' ? 'email' : 'phone'}</h1>
         <p className="text-lg mb-4">
-          We have sent you a single-use, 6-digit security code by {securityCodeMethod === 'email' ? 'email' : 'text message'} to:
+          We have sent you a single-use, 6-digit security code by{' '}
+          {securityCodeMethod === 'email' ? 'email' : 'text message'} to:
         </p>
         <p className="text-lg font-bold mb-4">
           {securityCodeMethod === 'email' ? 'v***********p@gmail.com' : '075*****886'}
@@ -297,7 +300,9 @@ export default function LoginPage() {
         </p>
 
         <div className="mb-8">
-          <Label htmlFor="securityCode" className="font-bold mb-2 block">Security code</Label>
+          <Label htmlFor="securityCode" className="font-bold mb-2 block">
+            Security code
+          </Label>
           <Input
             id="securityCode"
             type="text"
@@ -327,11 +332,15 @@ export default function LoginPage() {
               className="underline hover:text-govuk-blue"
             >
               use your {securityCodeMethod === 'email' ? 'phone number' : 'email address'} instead
-            </button>.
+            </button>
+            .
           </p>
           <p className="text-lg">
             If you do not have access to your phone number and email address,{' '}
-            <Link href="/login/recover" className="underline hover:text-govuk-blue">recover your account</Link>.
+            <Link href="/login/recover" className="underline hover:text-govuk-blue">
+              recover your account
+            </Link>
+            .
           </p>
         </div>
       </PageLayout>
@@ -363,13 +372,18 @@ export default function LoginPage() {
           </div>
         </RadioGroup>
 
-        <Button onClick={handleContinueToVerifyCode} className="mb-8">Continue</Button>
+        <Button onClick={handleContinueToVerifyCode} className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-4 py-2 h-auto text-sm sm:text-base shadow-[0_2px_0_#002d18] mb-8">
+          Continue
+        </Button>
 
         <div className="mt-12 pt-8 border-t border-govuk-grey-2">
           <h2 className="text-2xl font-bold mb-4">Problems signing in</h2>
           <p className="text-lg">
             If you do not have access to the phone number and email address,{' '}
-            <Link href="/login/recover" className="underline hover:text-govuk-blue">recover your account</Link>.
+            <Link href="/login/recover" className="underline hover:text-govuk-blue">
+              recover your account
+            </Link>
+            .
           </p>
         </div>
       </PageLayout>
@@ -388,7 +402,9 @@ export default function LoginPage() {
         <form onSubmit={handleContinueToSecurityCode}>
           <div className="flex gap-4 mb-8">
             <div className="w-16">
-              <Label htmlFor="day" className="font-bold mb-1 block">Day</Label>
+              <Label htmlFor="day" className="font-bold mb-1 block">
+                Day
+              </Label>
               <Input
                 id="day"
                 className={dateErrors.day ? 'border-destructive' : ''}
@@ -399,7 +415,9 @@ export default function LoginPage() {
               {dateErrors.day && <p className="text-destructive font-bold text-sm mt-1">{dateErrors.day}</p>}
             </div>
             <div className="w-16">
-              <Label htmlFor="month" className="font-bold mb-1 block">Month</Label>
+              <Label htmlFor="month" className="font-bold mb-1 block">
+                Month
+              </Label>
               <Input
                 id="month"
                 className={dateErrors.month ? 'border-destructive' : ''}
@@ -410,7 +428,9 @@ export default function LoginPage() {
               {dateErrors.month && <p className="text-destructive font-bold text-sm mt-1">{dateErrors.month}</p>}
             </div>
             <div className="w-24">
-              <Label htmlFor="year" className="font-bold mb-1 block">Year</Label>
+              <Label htmlFor="year" className="font-bold mb-1 block">
+                Year
+              </Label>
               <Input
                 id="year"
                 className={dateErrors.year ? 'border-destructive' : ''}
@@ -425,7 +445,12 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-12 bg-govuk-grey-3 border-l-8 border-govuk-grey-1 p-4">
-          <p className="text-lg mb-0">Need help? <a href="#" className="underline hover:text-govuk-blue">Contact us</a></p>
+          <p className="text-lg mb-0">
+            Need help?{' '}
+            <a href="#" className="underline text-govuk-blue hover:decoration-3">
+              Contact us
+            </a>
+          </p>
         </div>
       </PageLayout>
     );
@@ -438,11 +463,13 @@ export default function LoginPage() {
         <h1 className="text-4xl font-bold mb-8">{getDocumentTitle()}</h1>
 
         {documentType === 'biometric_card' && (
-          <div className="mb-8 border-2 border-govuk-grey-2 p-4 bg-govuk-grey-3 text-center">
-            <div className="w-full h-48 bg-govuk-grey-2 flex items-center justify-center text-sm">
-              BIOMETRIC CARD ILLUSTRATION PLACEHOLDER
-            </div>
-          </div>
+          <Image
+            src="/biometric-residence-card.png"
+            alt="Example of biometric card"
+            width={400}
+            height={300}
+            className="object-contain"
+          />
         )}
 
         <div className="mb-8">
@@ -468,11 +495,11 @@ export default function LoginPage() {
             </div>
           ) : (
             <>
-              <Label htmlFor="documentNumber" className="font-bold mb-1 block">{getDocumentLabel()}</Label>
-              <p className="text-govuk-grey-1 mb-2">{getDocumentExample()}</p>
+              <p className="text-govuk-grey-1 mb-2 text-xl">{getDocumentLabel()}</p>
+              <p className="text-govuk-grey-1 mb-2 text-xl">{getDocumentExample()}</p>
               <Input
                 id="documentNumber"
-                className="max-w-[300px]"
+                className="w-full"
                 value={documentNumber}
                 onChange={(e) => setDocumentNumber(e.target.value)}
               />
@@ -480,10 +507,14 @@ export default function LoginPage() {
           )}
         </div>
 
-        <Button onClick={handleContinueToDateOfBirth} className="mb-8">Continue</Button>
+        <Button onClick={handleContinueToDateOfBirth} className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-4 py-2 h-auto text-sm sm:text-base shadow-[0_2px_0_#002d18] mb-8">
+          Continue
+        </Button>
 
         <p className="text-lg">
-          <Link href="/login/recover" className="underline hover:text-govuk-blue">{getHelpLink()}</Link>
+          <Link href="/login/recover" className="underline text-govuk-blue">
+            {getHelpLink()}
+          </Link>
         </p>
       </PageLayout>
     );
@@ -496,38 +527,44 @@ export default function LoginPage() {
       <h1 className="text-4xl font-bold mb-6">Which identity document do you use to sign in to your UKVI account?</h1>
 
       <p className="text-lg mb-8">
-        This is usually the document you used when you created your account. If you have added a new document to
-        your account, use the most recent document to sign in.
+        This is usually the document you used when you created your account. If you have added a new document to your
+        account, use the most recent document to sign in.
       </p>
 
-      <RadioGroup
-        value={documentType}
-        onValueChange={(val) => setDocumentType(val as DocumentType)}
-        className="mb-8"
-      >
+      <RadioGroup value={documentType} onValueChange={(val) => setDocumentType(val as DocumentType)} className="mb-8">
         <div className="flex items-center space-x-4">
           <RadioGroupItem value="passport" id="passport" />
-          <Label htmlFor="passport" className="text-lg cursor-pointer">Passport</Label>
+          <Label htmlFor="passport" className="text-lg cursor-pointer">
+            Passport
+          </Label>
         </div>
         <div className="flex items-center space-x-4">
           <RadioGroupItem value="national_id" id="national_id" />
-          <Label htmlFor="national_id" className="text-lg cursor-pointer">National identity card</Label>
+          <Label htmlFor="national_id" className="text-lg cursor-pointer">
+            National identity card
+          </Label>
         </div>
         <div className="flex items-center space-x-4">
           <RadioGroupItem value="biometric_card" id="biometric_card" />
-          <Label htmlFor="biometric_card" className="text-lg cursor-pointer">Biometric residence card or permit</Label>
+          <Label htmlFor="biometric_card" className="text-lg cursor-pointer">
+            Biometric residence card or permit
+          </Label>
         </div>
         <div className="py-2 text-lg">or</div>
         <div className="flex items-center space-x-4">
           <RadioGroupItem value="customer_number" id="customer_number" />
-          <Label htmlFor="customer_number" className="text-lg cursor-pointer">I use a UKVI customer number</Label>
+          <Label htmlFor="customer_number" className="text-lg cursor-pointer">
+            I use a UKVI customer number
+          </Label>
         </div>
       </RadioGroup>
 
-      <Button onClick={handleContinueToDocumentNumber} className="mb-8">Continue</Button>
+      <Button onClick={handleContinueToDocumentNumber} className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-4 py-2 h-auto text-sm sm:text-base shadow-[0_2px_0_#002d18] mb-8">
+        Continue
+      </Button>
 
       <p className="text-lg">
-        <Link href="/login/recover" className="underline hover:text-govuk-blue">
+        <Link href="/login/recover" className="underline text-govuk-blue">
           I do not know which identity document I use to sign in
         </Link>
       </p>

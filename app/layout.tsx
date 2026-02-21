@@ -9,8 +9,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'PermitCode - Work Permit Management',
-  description: 'Work permit code management system',
+  title: 'GOV.UK - Check your right to work in the UK',
+  description: 'A simple service to check your right to work in the UK. Enter your details and we will tell you if you can work in the UK and for how long.',
 };
 
 export default function RootLayout({

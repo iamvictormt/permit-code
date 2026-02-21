@@ -40,7 +40,7 @@ export function CookieBanner() {
       <div className="max-w-5xl mx-auto">
         {status === 'question' ? (
           <>
-            <h2 className="text-xl font-bold text-[#0b0c0c] mb-4">Cookies on PermitCode</h2>
+            <h2 className="text-xl font-bold text-[#0b0c0c] mb-4">Cookies on GOV.UK</h2>
             <div className="text-[#0b0c0c] mb-6 space-y-4 text-sm sm:text-base">
               <p>We use some essential cookies to make this service work.</p>
               <p>
