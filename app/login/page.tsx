@@ -238,24 +238,16 @@ export default function LoginPage() {
   const Branding = () => (
     <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center p-12">
       <div className="max-w-md text-center">
-        <div className="flex items-center justify-center w-20 h-20 rounded-2xl bg-primary-foreground/10 mx-auto mb-8">
-          <Shield className="w-10 h-10 text-primary-foreground" />
-        </div>
-        <h2 className="text-3xl font-bold text-primary-foreground mb-4">PermitCode</h2>
-        <p className="text-primary-foreground/80 text-lg">
-          Work permit management system for secure verification and compliance tracking.
-        </p>
+        <Image src="/logo.svg" alt="GOV UK" width={300} height={300} className="mx-auto mb-4" />
       </div>
     </div>
   );
 
   // Mobile header component
   const MobileHeader = () => (
-    <div className="lg:hidden flex items-center gap-3 mb-8">
-      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary">
-        <Shield className="w-5 h-5 text-primary-foreground" />
-      </div>
-      <span className="font-bold text-xl text-foreground">PermitCode</span>
+    <div className="lg:hidden flex items-center gap-3 mb-8 bg-primary rounded">
+ 
+        <Image src="/logo.svg" alt="GOV UK" width={100} height={100} className="mx-auto" />
     </div>
   );
 
