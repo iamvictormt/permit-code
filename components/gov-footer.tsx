@@ -9,7 +9,7 @@ export function GovFooter() {
             <nav>
               <ul className="flex flex-wrap gap-x-4 gap-y-2 mb-4">
                 <li><a href="#" className="text-sm underline hover:decoration-3">Privacy</a></li>
-                <li><a href="#" className="text-sm underline hover:decoration-3">Cookies</a></li>
+                <li><a href="/cookies" className="text-sm underline hover:decoration-3">Cookies</a></li>
                 <li><a href="#" className="text-sm underline hover:decoration-3">Accessibility statement</a></li>
                 <li><a href="#" className="text-sm underline hover:decoration-3">Account terms and conditions</a></li>
               </ul>

@@ -251,41 +251,9 @@ export default function LoginPage() {
     setError('');
   };
 
-  const PageLayout = ({ children, showBack = true }: { children: React.ReactNode; showBack?: boolean }) => (
-    <div className="min-h-screen flex flex-col bg-white">
-      <GovHeader />
-      <BetaBanner />
-      <main className="flex-1 max-w-[960px] mx-auto w-full px-4 py-8">
-        {showBack && (
-          <button
-            onClick={goBack}
-            className="text-govuk-black underline hover:hover:decoration-3 mb-8 flex items-center gap-1 text-lg cursor-pointer "
-          >
-            <span className="inline-block border-l-2 border-b-2 border-current w-2.5 h-2.5 rotate-45 mr-1 mb-0.5"></span>
-            Back
-          </button>
-        )}
-        <div className="max-w-[600px]">
-          {error && (
-            <div className="border-4 border-destructive p-4 mb-8">
-              <h2 className="text-destructive text-xl font-bold mb-2">There is a problem</h2>
-              <ul className="text-destructive font-bold underline">
-                <li>
-                  <a href="#error-link">{error}</a>
-                </li>
-              </ul>
-            </div>
-          )}
-          {children}
-        </div>
-      </main>
-      <GovFooter />
-    </div>
-  );
-
   if (step === 'verify_code') {
     return (
-      <PageLayout>
+      <PageLayout goBack={goBack} error={error}>
         <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
         <h1 className="text-4xl font-bold mb-6">Check your {securityCodeMethod === 'email' ? 'email' : 'phone'}</h1>
         <p className="text-lg mb-4">
@@ -349,7 +317,7 @@ export default function LoginPage() {
 
   if (step === 'security_code') {
     return (
-      <PageLayout>
+      <PageLayout goBack={goBack} error={error}>
         <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
         <h1 className="text-4xl font-bold mb-8">How do you want to receive a security code?</h1>
 
@@ -392,7 +360,7 @@ export default function LoginPage() {
 
   if (step === 'date_of_birth') {
     return (
-      <PageLayout>
+      <PageLayout goBack={goBack} error={error}>
         <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
         <h1 className="text-4xl font-bold mb-6">What is your date of birth?</h1>
         <p className="text-lg text-govuk-grey-1 mb-8">
@@ -458,7 +426,7 @@ export default function LoginPage() {
 
   if (step === 'document_number') {
     return (
-      <PageLayout>
+      <PageLayout goBack={goBack} error={error}>
         <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
         <h1 className="text-4xl font-bold mb-8">{getDocumentTitle()}</h1>
 
@@ -522,7 +490,7 @@ export default function LoginPage() {
 
   // Default step: document selection
   return (
-    <PageLayout showBack={false}>
+    <PageLayout showBack={false} goBack={goBack} error={error}>
       <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
       <h1 className="text-4xl font-bold mb-6">Which identity document do you use to sign in to your UKVI account?</h1>
 
@@ -571,3 +539,45 @@ export default function LoginPage() {
     </PageLayout>
   );
 }
+
+const PageLayout = ({
+  children,
+  showBack = true,
+  goBack,
+  error,
+}: {
+  children: React.ReactNode;
+  showBack?: boolean;
+  goBack: () => void;
+  error: string;
+}) => (
+  <div className="min-h-screen flex flex-col bg-white">
+    <GovHeader />
+    <BetaBanner />
+    <main className="flex-1 max-w-[960px] mx-auto w-full px-4 py-8">
+      {showBack && (
+        <button
+          onClick={goBack}
+          className="text-govuk-black underline hover:hover:decoration-3 mb-8 flex items-center gap-1 text-lg cursor-pointer "
+        >
+          <span className="inline-block border-l-2 border-b-2 border-current w-2.5 h-2.5 rotate-45 mr-1 mb-0.5"></span>
+          Back
+        </button>
+      )}
+      <div className="max-w-[600px]">
+        {error && (
+          <div className="border-4 border-destructive p-4 mb-8">
+            <h2 className="text-destructive text-xl font-bold mb-2">There is a problem</h2>
+            <ul className="text-destructive font-bold underline">
+              <li>
+                <a href="#error-link">{error}</a>
+              </li>
+            </ul>
+          </div>
+        )}
+        {children}
+      </div>
+    </main>
+    <GovFooter />
+  </div>
+);

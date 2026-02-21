@@ -9,10 +9,18 @@ export function CookieBanner() {
   const [status, setStatus] = useState<'hidden' | 'question' | 'accepted' | 'rejected'>('hidden');
 
   useEffect(() => {
-    const cookieConsent = localStorage.getItem('cookie-consent');
-    if (!cookieConsent) {
-      setStatus('question');
-    }
+    const checkConsent = () => {
+      const cookieConsent = localStorage.getItem('cookie-consent');
+      if (!cookieConsent) {
+        setStatus('question');
+      } else {
+        setStatus('hidden');
+      }
+    };
+
+    checkConsent();
+    window.addEventListener('storage', checkConsent);
+    return () => window.removeEventListener('storage', checkConsent);
   }, []);
 
   const handleAccept = () => {
