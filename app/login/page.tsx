@@ -85,6 +85,48 @@ const validateDate = (dob: DateOfBirth): DateErrors => {
 
 type SecurityCodeMethod = 'sms' | 'email';
 
+const PageLayout = ({
+  children,
+  showBack = true,
+  onBack,
+  error,
+}: {
+  children: React.ReactNode;
+  showBack?: boolean;
+  onBack?: () => void;
+  error?: string;
+}) => (
+  <div className="min-h-screen flex flex-col bg-white">
+    <GovHeader />
+    <BetaBanner />
+    <main className="flex-1 max-w-[960px] mx-auto w-full px-4 py-8">
+      {showBack && (
+        <button
+          onClick={onBack}
+          className="text-govuk-black underline hover:text-govuk-blue mb-8 flex items-center gap-1 text-lg"
+        >
+          <span className="inline-block border-l-2 border-b-2 border-current w-2.5 h-2.5 rotate-45 mr-1 mb-0.5"></span>
+          Back
+        </button>
+      )}
+      <div className="max-w-[600px]">
+        {error && (
+          <div className="border-4 border-destructive p-4 mb-8">
+            <h2 className="text-destructive text-xl font-bold mb-2">There is a problem</h2>
+            <ul className="text-destructive font-bold underline">
+              <li>
+                <a href="#error-link">{error}</a>
+              </li>
+            </ul>
+          </div>
+        )}
+        {children}
+      </div>
+    </main>
+    <GovFooter />
+  </div>
+);
+
 export default function LoginPage() {
   const [step, setStep] = useState<'document' | 'document_number' | 'date_of_birth' | 'security_code' | 'verify_code'>(
     'document',
@@ -251,39 +293,9 @@ export default function LoginPage() {
     setError('');
   };
 
-  const PageLayout = ({ children, showBack = true }: { children: React.ReactNode, showBack?: boolean }) => (
-    <div className="min-h-screen flex flex-col bg-white">
-      <GovHeader />
-      <BetaBanner />
-      <main className="flex-1 max-w-[960px] mx-auto w-full px-4 py-8">
-        {showBack && (
-          <button
-            onClick={goBack}
-            className="text-govuk-black underline hover:text-govuk-blue mb-8 flex items-center gap-1 text-lg"
-          >
-            <span className="inline-block border-l-2 border-b-2 border-current w-2.5 h-2.5 rotate-45 mr-1 mb-0.5"></span>
-            Back
-          </button>
-        )}
-        <div className="max-w-[600px]">
-          {error && (
-            <div className="border-4 border-destructive p-4 mb-8">
-              <h2 className="text-destructive text-xl font-bold mb-2">There is a problem</h2>
-              <ul className="text-destructive font-bold underline">
-                <li><a href="#error-link">{error}</a></li>
-              </ul>
-            </div>
-          )}
-          {children}
-        </div>
-      </main>
-      <GovFooter />
-    </div>
-  );
-
   if (step === 'verify_code') {
     return (
-      <PageLayout>
+      <PageLayout onBack={goBack} error={error}>
         <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
         <h1 className="text-4xl font-bold mb-6">Check your {securityCodeMethod === 'email' ? 'email' : 'phone'}</h1>
         <p className="text-lg mb-4">
@@ -303,7 +315,11 @@ export default function LoginPage() {
             type="text"
             className="w-40"
             value={securityCode}
-            onChange={(e) => setSecurityCode(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+              setSecurityCode(val);
+              setError('');
+            }}
           />
         </div>
 
@@ -340,13 +356,16 @@ export default function LoginPage() {
 
   if (step === 'security_code') {
     return (
-      <PageLayout>
+      <PageLayout onBack={goBack} error={error}>
         <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
         <h1 className="text-4xl font-bold mb-8">How do you want to receive a security code?</h1>
 
         <RadioGroup
           value={securityCodeMethod}
-          onValueChange={(val) => setSecurityCodeMethod(val as SecurityCodeMethod)}
+          onValueChange={(val) => {
+            setSecurityCodeMethod(val as SecurityCodeMethod);
+            setError('');
+          }}
           className="mb-8"
         >
           <div className="flex items-center space-x-4">
@@ -378,7 +397,7 @@ export default function LoginPage() {
 
   if (step === 'date_of_birth') {
     return (
-      <PageLayout>
+      <PageLayout onBack={goBack} error={error}>
         <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
         <h1 className="text-4xl font-bold mb-6">What is your date of birth?</h1>
         <p className="text-lg text-govuk-grey-1 mb-8">
@@ -433,7 +452,7 @@ export default function LoginPage() {
 
   if (step === 'document_number') {
     return (
-      <PageLayout>
+      <PageLayout onBack={goBack} error={error}>
         <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
         <h1 className="text-4xl font-bold mb-8">{getDocumentTitle()}</h1>
 
@@ -461,7 +480,10 @@ export default function LoginPage() {
                 <Input
                   className="flex-1"
                   value={documentNumber}
-                  onChange={(e) => setDocumentNumber(e.target.value)}
+                  onChange={(e) => {
+                    setDocumentNumber(e.target.value.replace(/\D/g, '').slice(0, 8));
+                    setError('');
+                  }}
                   maxLength={8}
                 />
               </div>
@@ -474,7 +496,10 @@ export default function LoginPage() {
                 id="documentNumber"
                 className="max-w-[300px]"
                 value={documentNumber}
-                onChange={(e) => setDocumentNumber(e.target.value)}
+                onChange={(e) => {
+                  setDocumentNumber(e.target.value);
+                  setError('');
+                }}
               />
             </>
           )}
@@ -491,7 +516,7 @@ export default function LoginPage() {
 
   // Default step: document selection
   return (
-    <PageLayout showBack={false}>
+    <PageLayout showBack={false} error={error}>
       <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
       <h1 className="text-4xl font-bold mb-6">Which identity document do you use to sign in to your UKVI account?</h1>
 
@@ -502,7 +527,10 @@ export default function LoginPage() {
 
       <RadioGroup
         value={documentType}
-        onValueChange={(val) => setDocumentType(val as DocumentType)}
+        onValueChange={(val) => {
+          setDocumentType(val as DocumentType);
+          setError('');
+        }}
         className="mb-8"
       >
         <div className="flex items-center space-x-4">
