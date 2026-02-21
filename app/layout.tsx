@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { AuthProvider } from '@/lib/auth-context';
+import { CookieBanner } from '@/components/cookie-banner';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en-GB">
       <body className={`${inter.className} antialiased`}>
+        <CookieBanner />
         <AuthProvider>{children}</AuthProvider>
         <Analytics />
       </body>
