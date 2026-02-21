@@ -10,8 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle, Shield } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { GovHeader } from '@/components/gov-header';
+import { BetaBanner } from '@/components/beta-banner';
 import { GovFooter } from '@/components/gov-footer';
 import Image from 'next/image';
 
@@ -99,7 +101,7 @@ export default function LoginPage() {
 
   const handleContinueToDocumentNumber = () => {
     if (!documentType) {
-      setError('Please select a document type');
+      setError('Select which identity document you use to sign in');
       return;
     }
     setError('');
@@ -108,7 +110,7 @@ export default function LoginPage() {
 
   const handleContinueToDateOfBirth = () => {
     if (!documentNumber) {
-      setError('Please enter your document number');
+      setError(`Enter your ${getDocumentLabel().toLowerCase()}`);
       return;
     }
     setError('');
@@ -123,6 +125,8 @@ export default function LoginPage() {
     const errors = validateDate(dateOfBirth);
     if (Object.keys(errors).length > 0) {
       setDateErrors(errors);
+      // Construct a generic error message for the summary box
+      setError('Check your date of birth is correct');
       return;
     }
 
@@ -131,7 +135,7 @@ export default function LoginPage() {
 
   const handleContinueToVerifyCode = () => {
     if (!securityCodeMethod) {
-      setError('Please select how you want to receive your security code');
+      setError('Select how you want to receive a security code');
       return;
     }
     setError('');
@@ -140,7 +144,7 @@ export default function LoginPage() {
 
   const handleVerifyCode = async () => {
     if (!securityCode || securityCode.length !== 6) {
-      setError('Please enter the 6-digit security code');
+      setError('Enter the 6-digit security code');
       return;
     }
 
@@ -155,23 +159,16 @@ export default function LoginPage() {
 
   const handleDateChange = (field: keyof DateOfBirth, value: string) => {
     const numericValue = value.replace(/\D/g, '');
-
     let limitedValue = numericValue;
     if (field === 'day' || field === 'month') {
       limitedValue = numericValue.slice(0, 2);
     } else if (field === 'year') {
       limitedValue = numericValue.slice(0, 4);
     }
-
     setDateOfBirth((prev) => ({ ...prev, [field]: limitedValue }));
-
     if (dateErrors[field]) {
       setDateErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-  };
-
-  const handleSubmit = () => {
-    // Placeholder for handleSubmit logic
   };
 
   const getDocumentTitle = () => {
@@ -209,13 +206,13 @@ export default function LoginPage() {
       case 'passport':
         return 'For example, 120382978';
       case 'national_id':
-        return 'For example, AB123456';
+        return 'For example, 120382978';
       case 'biometric_card':
-        return 'For example, ZU1234567';
+        return 'For example, 120382978';
       case 'customer_number':
-        return '';
+        return 'For example, KX12345678';
       default:
-        return 'Enter your document number';
+        return '';
     }
   };
 
@@ -234,528 +231,306 @@ export default function LoginPage() {
     }
   };
 
-  // Branding component
-  const Branding = () => (
-    <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center p-12">
-      <div className="max-w-md text-center">
-        <Image src="/logo.svg" alt="GOV UK" width={300} height={300} className="mx-auto mb-4" />
-      </div>
-    </div>
-  );
+  const goBack = () => {
+    switch (step) {
+      case 'document_number':
+        setStep('document');
+        break;
+      case 'date_of_birth':
+        setStep('document_number');
+        break;
+      case 'security_code':
+        setStep('date_of_birth');
+        break;
+      case 'verify_code':
+        setStep('security_code');
+        break;
+      default:
+        break;
+    }
+    setError('');
+  };
 
-  // Mobile header component
-  const MobileHeader = () => (
-    <div className="lg:hidden flex items-center gap-3 mb-8 bg-primary rounded">
- 
-        <Image src="/logo.svg" alt="GOV UK" width={100} height={100} className="mx-auto" />
-    </div>
-  );
-
-  // Step 5: Verify Security Code
-  if (step === 'verify_code') {
-    const maskedContact = securityCodeMethod === 'email' ? 'v***********p@gmail.com' : '075*****886';
-    const contactType = securityCodeMethod === 'email' ? 'email' : 'text message';
-    const alternativeMethod = securityCodeMethod === 'email' ? 'phone number' : 'email address';
-
-    return (
-      <main className="min-h-screen bg-background">
-        <div className="min-h-screen flex">
-          <Branding />
-          <div className="flex-1 flex items-center justify-center p-6 g:p-12">
-            <div className="w-full max-w-lg">
-              <MobileHeader />
-
-              <button
-                type="button"
-                onClick={() => setStep('security_code')}
-                className="text-primary hover:underline text-sm mb-6 flex items-center gap-1"
-              >
-                <span>&lt;</span> Back
-              </button>
-
-              <p className="text-muted-foreground mb-2">Sign in</p>
-              <h1 className="text-2xl font-bold text-foreground mb-6 text-balance">
-                Check your {securityCodeMethod === 'email' ? 'email' : 'phone'}
-              </h1>
-
-              <p className="text-muted-foreground mb-2">
-                We have sent you a single-use, 6-digit security code by {contactType} to:
-              </p>
-              <p className="font-semibold text-foreground mb-4">{maskedContact}</p>
-              <p className="text-muted-foreground mb-6 text-sm">
-                It may take a few minutes to arrive. You need to use this code within 10 minutes or it will expire.
-              </p>
-
-              {error && (
-                <Alert variant="destructive" className="mb-6">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="securityCode" className="text-sm font-medium text-foreground">
-                    Security code
-                  </Label>
-                  <Input
-                    id="securityCode"
-                    type="text"
-                    inputMode="numeric"
-                    value={securityCode}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                      setSecurityCode(value);
-                      setError('');
-                    }}
-                    disabled={isLoading}
-                    className="h-12 text-lg border-2 border-foreground"
-                    maxLength={6}
-                  />
-                </div>
-
-                <Button
-                  onClick={handleVerifyCode}
-                  disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Verifying...
-                    </>
-                  ) : (
-                    'Continue'
-                  )}
-                </Button>
-
-                <button
-                  type="button"
-                  className="text-primary hover:underline text-sm"
-                  onClick={() => {
-                    // In a real app, this would resend the code
-                    setError('');
-                  }}
-                >
-                  Resend security code
-                </button>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-border">
-                <h2 className="text-lg font-semibold text-foreground mb-3">Problems signing in</h2>
-                <p className="text-muted-foreground mb-3">
-                  If you do not have access to this {securityCodeMethod === 'email' ? 'email address' : 'phone number'},{' '}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSecurityCodeMethod(securityCodeMethod === 'email' ? 'sms' : 'email');
-                      setStep('security_code');
-                    }}
-                    className="text-primary hover:underline"
-                  >
-                    use your {alternativeMethod} instead
-                  </button>
-                  .
-                </p>
-                <p className="text-muted-foreground">
-                  If you do not have access to your phone number and email address,{' '}
-                  <Link href="/login/recover" className="text-primary hover:underline">
-                    recover your account
-                  </Link>
-                  .
-                </p>
-              </div>
+  const PageLayout = ({ children, showBack = true }: { children: React.ReactNode, showBack?: boolean }) => (
+    <div className="min-h-screen flex flex-col bg-white">
+      <GovHeader />
+      <BetaBanner />
+      <main className="flex-1 max-w-[960px] mx-auto w-full px-4 py-8">
+        {showBack && (
+          <button
+            onClick={goBack}
+            className="text-govuk-black underline hover:text-govuk-blue mb-8 flex items-center gap-1 text-lg"
+          >
+            <span className="inline-block border-l-2 border-b-2 border-current w-2.5 h-2.5 rotate-45 mr-1 mb-0.5"></span>
+            Back
+          </button>
+        )}
+        <div className="max-w-[600px]">
+          {error && (
+            <div className="border-4 border-destructive p-4 mb-8">
+              <h2 className="text-destructive text-xl font-bold mb-2">There is a problem</h2>
+              <ul className="text-destructive font-bold underline">
+                <li><a href="#error-link">{error}</a></li>
+              </ul>
             </div>
-          </div>
+          )}
+          {children}
         </div>
-        <GovFooter />
       </main>
+      <GovFooter />
+    </div>
+  );
+
+  if (step === 'verify_code') {
+    return (
+      <PageLayout>
+        <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
+        <h1 className="text-4xl font-bold mb-6">Check your {securityCodeMethod === 'email' ? 'email' : 'phone'}</h1>
+        <p className="text-lg mb-4">
+          We have sent you a single-use, 6-digit security code by {securityCodeMethod === 'email' ? 'email' : 'text message'} to:
+        </p>
+        <p className="text-lg font-bold mb-4">
+          {securityCodeMethod === 'email' ? 'v***********p@gmail.com' : '075*****886'}
+        </p>
+        <p className="text-lg mb-8">
+          It may take a few minutes to arrive. You need to use this code within 10 minutes or it will expire.
+        </p>
+
+        <div className="mb-8">
+          <Label htmlFor="securityCode" className="font-bold mb-2 block">Security code</Label>
+          <Input
+            id="securityCode"
+            type="text"
+            className="w-40"
+            value={securityCode}
+            onChange={(e) => setSecurityCode(e.target.value)}
+          />
+        </div>
+
+        <Button onClick={handleVerifyCode} disabled={isLoading} className="mb-8">
+          {isLoading ? 'Verifying...' : 'Continue'}
+        </Button>
+
+        <p className="text-lg">
+          <button className="underline hover:text-govuk-blue">Resend security code</button>
+        </p>
+
+        <div className="mt-12 pt-8 border-t border-govuk-grey-2">
+          <h2 className="text-2xl font-bold mb-4">Problems signing in</h2>
+          <p className="text-lg mb-4">
+            If you do not have access to this {securityCodeMethod === 'email' ? 'email address' : 'phone number'},{' '}
+            <button
+              onClick={() => {
+                setSecurityCodeMethod(securityCodeMethod === 'email' ? 'sms' : 'email');
+                setStep('security_code');
+              }}
+              className="underline hover:text-govuk-blue"
+            >
+              use your {securityCodeMethod === 'email' ? 'phone number' : 'email address'} instead
+            </button>.
+          </p>
+          <p className="text-lg">
+            If you do not have access to your phone number and email address,{' '}
+            <Link href="/login/recover" className="underline hover:text-govuk-blue">recover your account</Link>.
+          </p>
+        </div>
+      </PageLayout>
     );
   }
 
-  // Step 4: Security Code Method
   if (step === 'security_code') {
     return (
-      <main className="min-h-screen bg-background">
-        <div className="min-h-screen flex">
-          <Branding />
-          <div className="flex-1 flex items-center justify-center p-6 g:p-12">
-            <div className="w-full max-w-lg">
-              <MobileHeader />
-              <button
-                type="button"
-                onClick={() => setStep('date_of_birth')}
-                className="text-primary hover:underline text-sm mb-6 flex items-center gap-1"
-              >
-                <span>&lt;</span> Back
-              </button>
-              <p className="text-muted-foreground mb-2">Sign in</p>
-              <h1 className="text-2xl font-bold text-foreground mb-8 text-balance">
-                How do you want to receive a security code?
-              </h1>
+      <PageLayout>
+        <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
+        <h1 className="text-4xl font-bold mb-8">How do you want to receive a security code?</h1>
 
-              {error && (
-                <Alert variant="destructive" className="mb-6">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              <RadioGroup
-                value={securityCodeMethod}
-                onValueChange={(value) => {
-                  setSecurityCodeMethod(value as SecurityCodeMethod);
-                  setError('');
-                }}
-                className="space-y-6 mb-8"
-              >
-                <div className="flex gap-4 items-start sm:items-center">
-                  <RadioGroupItem
-                    value="sms"
-                    id="sms"
-                    className="h-9 w-9 border-2 border-foreground shrink-0 sm:mt-0 mt-1"
-                  />
-
-                  <Label htmlFor="sms" className="text-lg font-normal cursor-pointer leading-snug block w-full">
-                    <span className="block sm:inline">Send a text message (SMS) to </span>
-                    <span className="block sm:inline font-medium">075*****886</span>
-                  </Label>
-                </div>
-
-                <div className="flex gap-4 items-start sm:items-center">
-                  <RadioGroupItem
-                    value="email"
-                    id="email"
-                    className="h-9 w-9 border-2 border-foreground shrink-0 sm:mt-0 mt-1"
-                  />
-
-                  <Label htmlFor="email" className="text-lg font-normal cursor-pointer leading-snug block w-full">
-                    <span className="block sm:inline">Send an email to </span>
-                    <span className="block sm:inline font-medium break-words">v***********p@gmail.com</span>
-                  </Label>
-                </div>
-              </RadioGroup>
-
-              <Button
-                onClick={handleContinueToVerifyCode}
-                disabled={isLoading}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-              >
-                Continue
-              </Button>
-
-              <div className="mt-8 pt-6 border-t border-border">
-                <h2 className="text-lg font-semibold text-foreground mb-3">Problems signing in</h2>
-                <p className="text-muted-foreground">
-                  If you do not have access to the phone number and email address,{' '}
-                  <Link href="/login/recover" className="text-primary hover:underline">
-                    recover your account
-                  </Link>
-                  .
-                </p>
-              </div>
-            </div>
+        <RadioGroup
+          value={securityCodeMethod}
+          onValueChange={(val) => setSecurityCodeMethod(val as SecurityCodeMethod)}
+          className="mb-8"
+        >
+          <div className="flex items-center space-x-4">
+            <RadioGroupItem value="sms" id="sms" />
+            <Label htmlFor="sms" className="text-lg cursor-pointer">
+              Send a text message (SMS) to <span className="font-bold">075*****886</span>
+            </Label>
           </div>
+          <div className="flex items-center space-x-4">
+            <RadioGroupItem value="email" id="email" />
+            <Label htmlFor="email" className="text-lg cursor-pointer">
+              Send an email to <span className="font-bold">v***********p@gmail.com</span>
+            </Label>
+          </div>
+        </RadioGroup>
+
+        <Button onClick={handleContinueToVerifyCode} className="mb-8">Continue</Button>
+
+        <div className="mt-12 pt-8 border-t border-govuk-grey-2">
+          <h2 className="text-2xl font-bold mb-4">Problems signing in</h2>
+          <p className="text-lg">
+            If you do not have access to the phone number and email address,{' '}
+            <Link href="/login/recover" className="underline hover:text-govuk-blue">recover your account</Link>.
+          </p>
         </div>
-        <GovFooter />
-      </main>
+      </PageLayout>
     );
   }
 
-  // Step 3: Date of Birth
   if (step === 'date_of_birth') {
     return (
-      <main className="min-h-screen bg-background">
-        <div className="min-h-screen flex">
-          <Branding />
-          <div className="flex-1 flex items-center justify-center p-6 g:p-12">
-            <div className="w-full max-w-lg">
-              <MobileHeader />
-              <button
-                type="button"
-                onClick={() => setStep('document_number')}
-                className="text-primary hover:underline text-sm mb-6 flex items-center gap-1"
-              >
-                <span>&lt;</span> Back
-              </button>
-              <p className="text-muted-foreground mb-2">Sign in</p>
-              <h1 className="text-2xl font-bold text-foreground mb-6 text-balance">What is your date of birth?</h1>
+      <PageLayout>
+        <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
+        <h1 className="text-4xl font-bold mb-6">What is your date of birth?</h1>
+        <p className="text-lg text-govuk-grey-1 mb-8">
+          You should enter this as shown on your passport. For example, 31 3 1980.
+        </p>
 
-              {error && (
-                <Alert variant="destructive" className="mb-6">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              <form onSubmit={handleContinueToSecurityCode} className="space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-foreground">Date of birth</Label>
-                  <p className="text-sm text-muted-foreground">For example, 31 03 1990</p>
-                  <div className="flex gap-3 mt-4">
-                    <div className="space-y-1">
-                      <Label htmlFor="day" className="text-xs text-muted-foreground">
-                        Day
-                      </Label>
-                      <Input
-                        id="day"
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="DD"
-                        value={dateOfBirth.day}
-                        onChange={(e) => handleDateChange('day', e.target.value)}
-                        disabled={isLoading}
-                        className={`h-12 w-20 text-center text-lg border-2 ${dateErrors.day ? 'border-destructive focus-visible:ring-destructive' : 'border-foreground'}`}
-                        maxLength={2}
-                      />
-                      {dateErrors.day && <p className="text-xs text-destructive max-w-20">{dateErrors.day}</p>}
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="month" className="text-xs text-muted-foreground">
-                        Month
-                      </Label>
-                      <Input
-                        id="month"
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="MM"
-                        value={dateOfBirth.month}
-                        onChange={(e) => handleDateChange('month', e.target.value)}
-                        disabled={isLoading}
-                        className={`h-12 w-20 text-center text-lg border-2 ${dateErrors.month ? 'border-destructive focus-visible:ring-destructive' : 'border-foreground'}`}
-                        maxLength={2}
-                      />
-                      {dateErrors.month && <p className="text-xs text-destructive max-w-20">{dateErrors.month}</p>}
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="year" className="text-xs text-muted-foreground">
-                        Year
-                      </Label>
-                      <Input
-                        id="year"
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="YYYY"
-                        value={dateOfBirth.year}
-                        onChange={(e) => handleDateChange('year', e.target.value)}
-                        disabled={isLoading}
-                        className={`h-12 w-24 text-center text-lg border-2 ${dateErrors.year ? 'border-destructive focus-visible:ring-destructive' : 'border-foreground'}`}
-                        maxLength={4}
-                      />
-                      {dateErrors.year && <p className="text-xs text-destructive max-w-24">{dateErrors.year}</p>}
-                    </div>
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    'Continue'
-                  )}
-                </Button>
-              </form>
+        <form onSubmit={handleContinueToSecurityCode}>
+          <div className="flex gap-4 mb-8">
+            <div className="w-16">
+              <Label htmlFor="day" className="font-bold mb-1 block">Day</Label>
+              <Input
+                id="day"
+                className={dateErrors.day ? 'border-destructive' : ''}
+                value={dateOfBirth.day}
+                onChange={(e) => handleDateChange('day', e.target.value)}
+                maxLength={2}
+              />
+              {dateErrors.day && <p className="text-destructive font-bold text-sm mt-1">{dateErrors.day}</p>}
+            </div>
+            <div className="w-16">
+              <Label htmlFor="month" className="font-bold mb-1 block">Month</Label>
+              <Input
+                id="month"
+                className={dateErrors.month ? 'border-destructive' : ''}
+                value={dateOfBirth.month}
+                onChange={(e) => handleDateChange('month', e.target.value)}
+                maxLength={2}
+              />
+              {dateErrors.month && <p className="text-destructive font-bold text-sm mt-1">{dateErrors.month}</p>}
+            </div>
+            <div className="w-24">
+              <Label htmlFor="year" className="font-bold mb-1 block">Year</Label>
+              <Input
+                id="year"
+                className={dateErrors.year ? 'border-destructive' : ''}
+                value={dateOfBirth.year}
+                onChange={(e) => handleDateChange('year', e.target.value)}
+                maxLength={4}
+              />
+              {dateErrors.year && <p className="text-destructive font-bold text-sm mt-1">{dateErrors.year}</p>}
             </div>
           </div>
+          <Button type="submit">Continue</Button>
+        </form>
+
+        <div className="mt-12 bg-govuk-grey-3 border-l-8 border-govuk-grey-1 p-4">
+          <p className="text-lg mb-0">Need help? <a href="#" className="underline hover:text-govuk-blue">Contact us</a></p>
         </div>
-        <GovFooter />
-      </main>
+      </PageLayout>
     );
   }
 
-  // Step 2: Document Number
   if (step === 'document_number') {
     return (
-      <main className="min-h-screen bg-background">
-        <div className="min-h-screen flex">
-          <Branding />
-          <div className="flex-1 flex items-center justify-center p-6 g:p-12">
-            <div className="w-full max-w-lg">
-              <MobileHeader />
-              <button
-                type="button"
-                onClick={() => setStep('document')}
-                className="text-primary hover:underline text-sm mb-6 flex items-center gap-1"
-              >
-                <span>&lt;</span> Back
-              </button>
-              <p className="text-muted-foreground mb-2">Sign in</p>
-              <h1 className="text-2xl font-bold text-foreground mb-4 text-balance">{getDocumentTitle()}</h1>
+      <PageLayout>
+        <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
+        <h1 className="text-4xl font-bold mb-8">{getDocumentTitle()}</h1>
 
-              {documentType === 'biometric_card' && (
-                <Image src="/permit-number.png" alt="Biometric Card" width={360} height={360} />
-              )}
-
-              {error && (
-                <Alert variant="destructive" className="mb-6">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              <div className="space-y-6">
-                {documentType === 'customer_number' ? (
-                  <div className="space-y-4">
-                    <p className="text-muted-foreground leading-relaxed">
-                      You will have a UKVI customer number if you did not use an identity document to create your
-                      account.
-                    </p>
-                    <p className="text-sm text-foreground">
-                      Your UKVI customer number is 10 characters long and starts with KX, for example KX12345678.
-                    </p>
-                    <div className="flex">
-                      <div className="flex items-center justify-center px-3 h-12 border-2 border-r-0 border-foreground bg-muted text-foreground font-medium">
-                        KX
-                      </div>
-                      <Input
-                        id="customerNumber"
-                        type="text"
-                        value={documentNumber}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '').slice(0, 8);
-                          setDocumentNumber(value);
-                        }}
-                        disabled={isLoading}
-                        placeholder=""
-                        className="h-12 text-lg border-2 border-foreground rounded-l-none flex-1"
-                        maxLength={8}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Label htmlFor="documentNumber" className="text-sm font-medium text-foreground">
-                      {getDocumentLabel()}
-                    </Label>
-                    <p className="text-sm text-muted-foreground">{getDocumentExample()}</p>
-                    <Input
-                      id="documentNumber"
-                      type="text"
-                      value={documentNumber}
-                      onChange={(e) => setDocumentNumber(e.target.value)}
-                      disabled={isLoading}
-                      className="h-12 text-lg border-2 border-foreground"
-                    />
-                  </div>
-                )}
-
-                <Button
-                  onClick={handleContinueToDateOfBirth}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  Continue
-                </Button>
-
-                <div>
-                  <Link href="/login/recover" className="text-primary hover:underline text-sm">
-                    {getHelpLink()}
-                  </Link>
-                </div>
-              </div>
+        {documentType === 'biometric_card' && (
+          <div className="mb-8 border-2 border-govuk-grey-2 p-4 bg-govuk-grey-3 text-center">
+            <div className="w-full h-48 bg-govuk-grey-2 flex items-center justify-center text-sm">
+              BIOMETRIC CARD ILLUSTRATION PLACEHOLDER
             </div>
           </div>
+        )}
+
+        <div className="mb-8">
+          {documentType === 'customer_number' ? (
+            <div className="space-y-4">
+              <p className="text-lg">
+                You will have a UKVI customer number if you did not use an identity document to create your account.
+              </p>
+              <p className="text-lg font-bold">
+                Your UKVI customer number is 10 characters long and starts with KX, for example KX12345678.
+              </p>
+              <div className="flex">
+                <div className="flex items-center justify-center px-3 border-2 border-r-0 border-govuk-black bg-govuk-grey-3 font-bold text-lg">
+                  KX
+                </div>
+                <Input
+                  className="flex-1"
+                  value={documentNumber}
+                  onChange={(e) => setDocumentNumber(e.target.value)}
+                  maxLength={8}
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+              <Label htmlFor="documentNumber" className="font-bold mb-1 block">{getDocumentLabel()}</Label>
+              <p className="text-govuk-grey-1 mb-2">{getDocumentExample()}</p>
+              <Input
+                id="documentNumber"
+                className="max-w-[300px]"
+                value={documentNumber}
+                onChange={(e) => setDocumentNumber(e.target.value)}
+              />
+            </>
+          )}
         </div>
-        <GovFooter />
-      </main>
+
+        <Button onClick={handleContinueToDateOfBirth} className="mb-8">Continue</Button>
+
+        <p className="text-lg">
+          <Link href="/login/recover" className="underline hover:text-govuk-blue">{getHelpLink()}</Link>
+        </p>
+      </PageLayout>
     );
   }
 
-  // Step 1: Document Selection
+  // Default step: document selection
   return (
-    <main className="min-h-screen bg-background">
-      <div className="min-h-screen flex">
-        <Branding />
-        <div className="flex-1 flex items-center justify-center p-6 g:p-12">
-          <div className="w-full max-w-lg">
-            <MobileHeader />
+    <PageLayout showBack={false}>
+      <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
+      <h1 className="text-4xl font-bold mb-6">Which identity document do you use to sign in to your UKVI account?</h1>
 
-            <p className="text-muted-foreground mb-2">Sign in</p>
-            <h1 className="text-2xl font-bold text-foreground mb-6 text-balance">
-              Which identity document do you use to sign in to your account?
-            </h1>
+      <p className="text-lg mb-8">
+        This is usually the document you used when you created your account. If you have added a new document to
+        your account, use the most recent document to sign in.
+      </p>
 
-            <p className="text-muted-foreground mb-8 leading-relaxed">
-              This is usually the document you used when you created your account. If you have added a new document to
-              your account, use the most recent document to sign in.
-            </p>
-
-            {error && (
-              <Alert variant="destructive" className="mb-6">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <RadioGroup
-              value={documentType}
-              onValueChange={(value) => {
-                setDocumentType(value as DocumentType);
-                setError('');
-              }}
-              className="space-y-5 mb-8"
-            >
-              <div className="flex items-center space-x-4">
-                <RadioGroupItem value="passport" id="passport" className="h-9 w-9 border-2 border-foreground" />
-                <Label htmlFor="passport" className="text-lg font-normal cursor-pointer">
-                  Passport
-                </Label>
-              </div>
-
-              <div className="flex items-center space-x-4">
-                <RadioGroupItem value="national_id" id="national_id" className="h-9 w-9 border-2 border-foreground" />
-                <Label htmlFor="national_id" className="text-lg font-normal cursor-pointer">
-                  National identity card
-                </Label>
-              </div>
-
-              <div className="flex items-center space-x-4">
-                <RadioGroupItem
-                  value="biometric_card"
-                  id="biometric_card"
-                  className="h-9 w-9 border-2 border-foreground"
-                />
-                <Label htmlFor="biometric_card" className="text-lg font-normal cursor-pointer">
-                  Biometric residence card or permit
-                </Label>
-              </div>
-
-              <p className="text-muted-foreground text-base py-1">or</p>
-
-              <div className="flex items-center space-x-4">
-                <RadioGroupItem
-                  value="customer_number"
-                  id="customer_number"
-                  className="h-9 w-9 border-2 border-foreground"
-                />
-                <Label htmlFor="customer_number" className="text-lg font-normal cursor-pointer">
-                  I use a UKVI customer number
-                </Label>
-              </div>
-            </RadioGroup>
-
-            <Button
-              onClick={handleContinueToDocumentNumber}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              Continue
-            </Button>
-
-            <div className="mt-6">
-              <Link href="/login/recover" className="text-primary hover:underline text-sm">
-                I do not know which identity document I use to sign in
-              </Link>
-            </div>
-          </div>
+      <RadioGroup
+        value={documentType}
+        onValueChange={(val) => setDocumentType(val as DocumentType)}
+        className="mb-8"
+      >
+        <div className="flex items-center space-x-4">
+          <RadioGroupItem value="passport" id="passport" />
+          <Label htmlFor="passport" className="text-lg cursor-pointer">Passport</Label>
         </div>
-      </div>
-      <GovFooter />
-    </main>
+        <div className="flex items-center space-x-4">
+          <RadioGroupItem value="national_id" id="national_id" />
+          <Label htmlFor="national_id" className="text-lg cursor-pointer">National identity card</Label>
+        </div>
+        <div className="flex items-center space-x-4">
+          <RadioGroupItem value="biometric_card" id="biometric_card" />
+          <Label htmlFor="biometric_card" className="text-lg cursor-pointer">Biometric residence card or permit</Label>
+        </div>
+        <div className="py-2 text-lg">or</div>
+        <div className="flex items-center space-x-4">
+          <RadioGroupItem value="customer_number" id="customer_number" />
+          <Label htmlFor="customer_number" className="text-lg cursor-pointer">I use a UKVI customer number</Label>
+        </div>
+      </RadioGroup>
+
+      <Button onClick={handleContinueToDocumentNumber} className="mb-8">Continue</Button>
+
+      <p className="text-lg">
+        <Link href="/login/recover" className="underline hover:text-govuk-blue">
+          I do not know which identity document I use to sign in
+        </Link>
+      </p>
+    </PageLayout>
   );
 }
