@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen flex flex-col bg-white">
       <GovHeader />
       <BetaBanner />
-      <div className="bg-govuk-grey-3 border-b border-govuk-grey-2">
+      <div className="bg-govuk-grey-3">
         <div className="max-w-[960px] mx-auto px-4 py-2 flex justify-between items-center">
            <span className="font-bold">Admin Panel</span>
            <div className="text-sm">
