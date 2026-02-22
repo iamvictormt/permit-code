@@ -11,7 +11,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASSWORD,
   },
   tls: {
-    rejectUnauthorized: (process.env.SMTP_TLS_REJECT_UNAUTHORIZED || 'true') === 'true',
+    // If SMTP_TLS_REJECT_UNAUTHORIZED is explicitly 'false', we set rejectUnauthorized to false
+    rejectUnauthorized: process.env.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false',
   },
 })
 
@@ -38,6 +39,14 @@ export async function POST(req: NextRequest) {
 
     // Send email via SMTP (skip if user/pass are missing)
     if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+      console.log('Attempting to send email via SMTP...');
+      console.log('SMTP Config:', {
+        host: process.env.SMTP_HOST || 'smtp.ionos.com',
+        port: process.env.SMTP_PORT || '465',
+        secure: process.env.SMTP_SECURE || 'true',
+        user: process.env.SMTP_USER,
+        rejectUnauthorized: process.env.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false'
+      });
       try {
         await transporter.sendMail({
           from: process.env.SMTP_FROM || 'homeoffice.gov@notifications-service.uk',
