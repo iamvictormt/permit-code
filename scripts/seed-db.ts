@@ -44,8 +44,7 @@ async function seed() {
         legalBasis: 'British Citizen',
         photoUrl: '/placeholder.svg?height=120&width=100',
         documents: [
-          { type: 'passport', number: '987654321' },
-          { type: 'customer_number', number: 'KX12345678' }
+          { type: 'passport', number: '987654321' }
         ]
       }
     ];

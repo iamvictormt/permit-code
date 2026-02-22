@@ -5,12 +5,30 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Pencil, Trash2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface User {
   id: string;
   full_name: string;
   email: string;
+  date_of_birth: string;
   account_status: string;
   document_type: string;
   document_number: string;
@@ -38,6 +56,36 @@ export default function AdminDashboard() {
   const [verifyResult, setVerifyResult] = useState<{valid: boolean, message?: string, user?: {fullName: string}} | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // Edit Modal State
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState({
+    fullName: '',
+    email: '',
+    dateOfBirth: '',
+    documentType: '',
+    documentNumber: ''
+  });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editError, setEditError] = useState('');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  // Alert Dialog State
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    action: () => void;
+    actionLabel: string;
+    variant: 'default' | 'destructive';
+  }>({
+    open: false,
+    title: '',
+    description: '',
+    action: () => {},
+    actionLabel: '',
+    variant: 'default'
+  });
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -48,7 +96,12 @@ export default function AdminDashboard() {
       const res = await fetch('/api/admin/users');
       if (res.ok) {
         const data = await res.json();
-        setUsers(data);
+        // Format dates for input[type=date]
+        const formattedUsers = data.map((u: any) => ({
+          ...u,
+          date_of_birth: u.date_of_birth ? new Date(u.date_of_birth).toISOString().split('T')[0] : ''
+        }));
+        setUsers(formattedUsers);
       }
     } catch (err) {
       console.error('Failed to fetch users');
@@ -57,34 +110,50 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleToggleStatus = async (userId: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-    try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ account_status: newStatus })
-      });
-      if (res.ok) {
-        fetchUsers();
+  const handleToggleStatus = (user: User) => {
+    const isActivating = user.account_status !== 'ACTIVE';
+    setConfirmDialog({
+      open: true,
+      title: isActivating ? 'Activate user?' : 'Inactivate user?',
+      description: `Are you sure you want to ${isActivating ? 'activate' : 'inactivate'} ${user.full_name}?`,
+      actionLabel: isActivating ? 'Activate' : 'Inactivate',
+      variant: isActivating ? 'default' : 'destructive',
+      action: async () => {
+        const newStatus = isActivating ? 'ACTIVE' : 'INACTIVE';
+        try {
+          const res = await fetch(`/api/admin/users/${user.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ account_status: newStatus })
+          });
+          if (res.ok) fetchUsers();
+        } catch (err) {
+          console.error('Failed to update status');
+        }
+        setConfirmDialog(prev => ({ ...prev, open: false }));
       }
-    } catch (err) {
-      console.error('Failed to update status');
-    }
+    });
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
-    try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
-        method: 'DELETE'
-      });
-      if (res.ok) {
-        fetchUsers();
+  const handleDeleteUser = (user: User) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete user?',
+      description: `Are you sure you want to delete ${user.full_name}? This action cannot be undone.`,
+      actionLabel: 'Delete',
+      variant: 'destructive',
+      action: async () => {
+        try {
+          const res = await fetch(`/api/admin/users/${user.id}`, {
+            method: 'DELETE'
+          });
+          if (res.ok) fetchUsers();
+        } catch (err) {
+          console.error('Failed to delete user');
+        }
+        setConfirmDialog(prev => ({ ...prev, open: false }));
       }
-    } catch (err) {
-      console.error('Failed to delete user');
-    }
+    });
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -120,6 +189,18 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleShareCodeMask = (value: string) => {
+    // Remove non-alphanumeric chars and uppercase
+    const cleaned = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 9);
+    // Add spaces every 3 chars
+    let masked = '';
+    for (let i = 0; i < cleaned.length; i++) {
+      if (i > 0 && i % 3 === 0) masked += ' ';
+      masked += cleaned[i];
+    }
+    setVerifyCode(masked);
+  };
+
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsVerifying(true);
@@ -140,6 +221,46 @@ export default function AdminDashboard() {
     }
   };
 
+  const openEditModal = (user: User) => {
+    setEditingUser(user);
+    setEditForm({
+      fullName: user.full_name,
+      email: user.email,
+      dateOfBirth: user.date_of_birth,
+      documentType: user.document_type,
+      documentNumber: user.document_number
+    });
+    setEditError('');
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+
+    setEditError('');
+    setIsSavingEdit(true);
+
+    try {
+      const res = await fetch(`/api/admin/users/${editingUser.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setIsEditModalOpen(false);
+        fetchUsers();
+      } else {
+        setEditError(data.error || 'Update failed');
+      }
+    } catch (err) {
+      setEditError('An error occurred during update');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   return (
     <div className="space-y-12">
       <h1 className="text-4xl font-bold mb-8">Admin Dashboard</h1>
@@ -153,9 +274,9 @@ export default function AdminDashboard() {
             <Input
               id="shareCode"
               value={verifyCode}
-              onChange={(e) => setVerifyCode(e.target.value)}
+              onChange={(e) => handleShareCodeMask(e.target.value)}
               placeholder="XXX XXX XXX"
-              className="mt-1"
+              className="mt-1 font-mono"
             />
           </div>
           <Button type="submit" disabled={isVerifying}>
@@ -303,18 +424,24 @@ export default function AdminDashboard() {
                         {user.account_status}
                       </span>
                     </td>
-                    <td className="py-4 text-right space-x-2">
+                    <td className="py-4 text-right space-x-3">
                       <button
-                        onClick={() => handleToggleStatus(user.id, user.account_status)}
+                        onClick={() => openEditModal(user)}
+                        className="text-govuk-blue hover:text-govuk-blue/80 inline-flex items-center gap-1 text-sm font-medium"
+                      >
+                        <Pencil className="w-3 h-3" /> Alterar
+                      </button>
+                      <button
+                        onClick={() => handleToggleStatus(user)}
                         className="text-govuk-blue underline hover:text-govuk-blue/80 text-sm font-medium"
                       >
                         {user.account_status === 'ACTIVE' ? 'Inactivate' : 'Activate'}
                       </button>
                       <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="text-red-600 underline hover:text-red-800 text-sm font-medium"
+                        onClick={() => handleDeleteUser(user)}
+                        className="text-red-600 hover:text-red-800 inline-flex items-center gap-1 text-sm font-medium"
                       >
-                        Delete
+                        <Trash2 className="w-3 h-3" /> Delete
                       </button>
                     </td>
                   </tr>
@@ -324,6 +451,113 @@ export default function AdminDashboard() {
           </table>
         </div>
       </section>
+
+      {/* Edit User Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Alterar Usuário</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleUpdateUser} className="space-y-4 py-4">
+            {editError && (
+              <div className="bg-red-50 border-2 border-red-600 p-3 text-red-700 font-bold text-sm">
+                {editError}
+              </div>
+            )}
+
+            <div className="grid gap-2">
+              <Label htmlFor="edit-fullName" className="font-bold">Full Name</Label>
+              <Input
+                id="edit-fullName"
+                value={editForm.fullName}
+                onChange={(e) => setEditForm({...editForm, fullName: e.target.value})}
+                required
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="edit-email" className="font-bold">Email</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                required
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="edit-dob" className="font-bold">Date of Birth</Label>
+              <Input
+                id="edit-dob"
+                type="date"
+                value={editForm.dateOfBirth}
+                onChange={(e) => setEditForm({...editForm, dateOfBirth: e.target.value})}
+                required
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label className="font-bold">Identity Document</Label>
+              <RadioGroup
+                value={editForm.documentType}
+                onValueChange={(val) => setEditForm({...editForm, documentType: val})}
+                className="flex gap-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="passport" id="edit-doc-passport" />
+                  <Label htmlFor="edit-doc-passport">Passport</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="national_id" id="edit-doc-id" />
+                  <Label htmlFor="edit-doc-id">National ID</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="biometric_card" id="edit-doc-biometric" />
+                  <Label htmlFor="edit-doc-biometric">Biometric</Label>
+                </div>
+              </RadioGroup>
+              <Input
+                value={editForm.documentNumber}
+                onChange={(e) => setEditForm({...editForm, documentNumber: e.target.value})}
+                required
+                className="mt-1"
+                placeholder="Document Number"
+              />
+            </div>
+
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSavingEdit} className="bg-[#00703c] hover:bg-[#005a30]">
+                {isSavingEdit ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Custom Confirmation Dialog */}
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => setConfirmDialog(prev => ({...prev, open}))}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmDialog.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDialog.action}
+              className={confirmDialog.variant === 'destructive' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
+            >
+              {confirmDialog.actionLabel}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
