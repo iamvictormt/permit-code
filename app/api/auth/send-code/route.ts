@@ -10,6 +10,9 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
   },
+  tls: {
+    rejectUnauthorized: (process.env.SMTP_TLS_REJECT_UNAUTHORIZED || 'true') === 'true',
+  },
 })
 
 export async function POST(req: NextRequest) {
