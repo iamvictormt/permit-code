@@ -10,7 +10,7 @@ export function GovHeader() {
   const { isAuthenticated } = useAuth();
   const pathname = usePathname();
 
-  const headerBgColor = isAuthenticated ? 'bg-black' : 'bg-govuk-blue';
+  const headerBgColor = isAuthenticated && pathname.includes('/profile') ? 'bg-black' : 'bg-govuk-blue';
   const showBlueBar = isAuthenticated && pathname.includes('/profile');
 
   return (
