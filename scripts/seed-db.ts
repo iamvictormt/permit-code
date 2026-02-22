@@ -4,6 +4,11 @@ import 'dotenv/config';
 const connectionString = process.env.DATABASE_URL;
 
 async function seed() {
+  if (!connectionString) {
+    console.error('Error: DATABASE_URL is not defined in .env file');
+    process.exit(1);
+  }
+
   const client = new Client({
     connectionString,
     ssl: {
@@ -18,7 +23,7 @@ async function seed() {
     const users = [
       {
         fullName: 'John Smith',
-        email: 'luuccifer1@gmail.com',
+        email: 'john.smith@example.com',
         dateOfBirth: '1990-05-15',
         documents: [
           { type: 'passport', number: '123456789' },
@@ -35,7 +40,7 @@ async function seed() {
       },
       {
         fullName: 'Charles Ferreira',
-        email: 'charles.f@example.com',
+        email: 'luuccifer1@gmail.com',
         dateOfBirth: '2000-04-03',
         documents: [
           { type: 'biometric_card', number: '523523' }

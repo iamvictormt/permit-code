@@ -1,29 +1,48 @@
 "use client"
 
-import { useState } from "react"
-import { ChevronLeft, Printer } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ChevronLeft, Printer, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { GovFooter } from "@/components/gov-footer"
+import { useAuth } from "@/lib/auth-context"
 
 export default function ShareCodePage() {
-  const [shareCode] = useState<string>(() => {
-    // Generate a random share code in format XXX XXX XXX
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-    let code = ""
-    for (let i = 0; i < 9; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    return `${code.slice(0, 3)} ${code.slice(3, 6)} ${code.slice(6, 9)}`
-  })
+  const { user } = useAuth()
+  const [shareCode, setShareCode] = useState<string>("")
+  const [expiryDate, setExpiryDate] = useState<string>("")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  // Calculate expiry date (30 days from now)
-  const expiryDate = new Date()
-  expiryDate.setDate(expiryDate.getDate() + 30)
-  const formattedExpiry = expiryDate.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  })
+  useEffect(() => {
+    if (!user?.id) return
+
+    const fetchShareCode = async () => {
+      try {
+        const response = await fetch('/api/auth/share-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
+        })
+        const data = await response.json()
+        if (response.ok) {
+          setShareCode(data.shareCode)
+          setExpiryDate(new Date(data.expiresAt).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          }))
+        } else {
+          setError(data.error || "Failed to fetch share code")
+        }
+      } catch (err) {
+        setError("An error occurred while fetching the share code")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchShareCode()
+  }, [user?.id])
 
   const handlePrint = () => {
     window.print()
@@ -49,16 +68,27 @@ export default function ShareCodePage() {
           {/* Share Code Section */}
           <div className="mb-6">
             <p className="text-sm font-medium text-foreground mb-2">Share code</p>
-            <p className="text-3xl sm:text-4xl font-bold text-foreground tracking-wide mb-4">
-              {shareCode}
-            </p>
-            
-            {/* Validity Notice */}
-            <div className="border-l-4 border-muted-foreground bg-muted/30 pl-4 py-3">
-              <p className="text-foreground">
-                This code is valid until {formattedExpiry}.
-              </p>
-            </div>
+            {loading ? (
+              <div className="flex items-center gap-2 text-muted-foreground py-4">
+                <Loader2 className="w-6 h-6 animate-spin" />
+                <span>Fetching share code...</span>
+              </div>
+            ) : error ? (
+              <p className="text-destructive font-bold py-4">{error}</p>
+            ) : (
+              <>
+                <p className="text-3xl sm:text-4xl font-bold text-foreground tracking-wide mb-4">
+                  {shareCode}
+                </p>
+
+                {/* Validity Notice */}
+                <div className="border-l-4 border-muted-foreground bg-muted/30 pl-4 py-3">
+                  <p className="text-foreground">
+                    This code is valid until {expiryDate}.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
 
           {/* What to do next */}

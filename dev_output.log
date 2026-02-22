@@ -1,0 +1,77 @@
+
+> permit-code-uk@0.1.0 dev /app
+> next dev
+
+   ▲ Next.js 16.0.10 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://192.168.0.2:3000
+   - Environments: .env
+
+ ✓ Starting...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ✓ Ready in 1951ms
+ ○ Compiling /login ...
+ GET /login 200 in 7.9s (compile: 7.1s, render: 856ms)
+(node:14916) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ POST /api/auth/validate 200 in 1002ms (compile: 740ms, render: 262ms)
+ POST /api/auth/validate 200 in 1118ms (compile: 875ms, render: 243ms)
+ GET /login 200 in 138ms (compile: 5ms, render: 132ms)
+ GET /login 200 in 76ms (compile: 4ms, render: 72ms)
+ POST /api/auth/validate 200 in 236ms (compile: 3ms, render: 233ms)
+ POST /api/auth/validate 200 in 228ms (compile: 3ms, render: 225ms)
+ GET /login 200 in 75ms (compile: 4ms, render: 72ms)
+ POST /api/auth/validate 200 in 239ms (compile: 5ms, render: 234ms)
+ POST /api/auth/validate 200 in 222ms (compile: 3ms, render: 218ms)
+ GET /login 200 in 104ms (compile: 3ms, render: 101ms)
+ POST /api/auth/validate 200 in 222ms (compile: 3ms, render: 219ms)
+ GET /login 200 in 74ms (compile: 3ms, render: 71ms)
+ POST /api/auth/validate 200 in 237ms (compile: 3ms, render: 234ms)
+ POST /api/auth/validate 200 in 219ms (compile: 4ms, render: 215ms)
+ GET /login 200 in 133ms (compile: 3ms, render: 130ms)
+ POST /api/auth/validate 200 in 222ms (compile: 4ms, render: 219ms)
+Resend error: {
+  statusCode: 403,
+  name: 'validation_error',
+  message: 'You can only send testing emails to your own email address (luuccifer1@gmail.com). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain.'
+}
+ POST /api/auth/send-code 500 in 1161ms (compile: 893ms, render: 268ms)
+ GET /login 200 in 82ms (compile: 5ms, render: 76ms)
+ POST /api/auth/validate 200 in 230ms (compile: 4ms, render: 226ms)
+ POST /api/auth/send-code 200 in 285ms (compile: 19ms, render: 266ms)
+ POST /api/auth/verify-code 200 in 221ms (compile: 155ms, render: 65ms)
+ GET /profile 200 in 954ms (compile: 833ms, render: 121ms)
+ GET /login 200 in 77ms (compile: 3ms, render: 73ms)
+ POST /api/auth/validate 200 in 253ms (compile: 3ms, render: 250ms)
+ POST /api/auth/send-code 200 in 309ms (compile: 17ms, render: 292ms)
+ POST /api/auth/verify-code 200 in 65ms (compile: 2ms, render: 63ms)
+ GET /profile 200 in 23ms (compile: 3ms, render: 20ms)
+ GET /profile/share-code 200 in 683ms (compile: 569ms, render: 115ms)
+ POST /api/auth/share-code 200 in 260ms (compile: 189ms, render: 71ms)
+ POST /api/auth/share-code 200 in 439ms (compile: 212ms, render: 227ms)
+ GET /profile/share-code 200 in 99ms (compile: 8ms, render: 91ms)
+ GET /login 200 in 106ms (compile: 4ms, render: 102ms)
+ POST /api/auth/validate 200 in 218ms (compile: 3ms, render: 216ms)
+ POST /api/auth/send-code 200 in 253ms (compile: 16ms, render: 236ms)
+ POST /api/auth/verify-code 200 in 67ms (compile: 3ms, render: 64ms)
+ GET /profile 200 in 23ms (compile: 3ms, render: 21ms)
+ GET /profile/share-code 200 in 24ms (compile: 3ms, render: 21ms)
+ POST /api/auth/share-code 200 in 37ms (compile: 4ms, render: 33ms)
+ POST /api/auth/share-code 200 in 225ms (compile: 2ms, render: 223ms)
+ GET /profile/share-code 200 in 84ms (compile: 3ms, render: 81ms)
+ GET /login 200 in 91ms (compile: 3ms, render: 88ms)
+ POST /api/auth/validate 200 in 220ms (compile: 3ms, render: 217ms)
+ POST /api/auth/send-code 200 in 322ms (compile: 17ms, render: 305ms)
+ POST /api/auth/verify-code 200 in 65ms (compile: 2ms, render: 62ms)
+ GET /profile 200 in 21ms (compile: 3ms, render: 18ms)
+ GET /profile/share-code 200 in 23ms (compile: 3ms, render: 20ms)
+ POST /api/auth/share-code 200 in 37ms (compile: 3ms, render: 34ms)
+ POST /api/auth/share-code 200 in 213ms (compile: 2ms, render: 211ms)
+ GET /profile/share-code 200 in 62ms (compile: 3ms, render: 59ms)

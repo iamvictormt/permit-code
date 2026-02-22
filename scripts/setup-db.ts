@@ -4,6 +4,13 @@ import 'dotenv/config';
 const connectionString = process.env.DATABASE_URL;
 
 async function setup() {
+  if (!connectionString) {
+    console.error('Error: DATABASE_URL is not defined in .env file');
+    process.exit(1);
+  }
+
+  console.log('Connecting to:', connectionString.split('@')[1] || 'URL format error');
+
   const client = new Client({
     connectionString,
     ssl: {
@@ -32,6 +39,8 @@ async function setup() {
         account_status TEXT DEFAULT 'ACTIVE',
         auth_code TEXT,
         auth_code_expires_at TIMESTAMP,
+        share_code TEXT,
+        share_code_expires_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
