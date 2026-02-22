@@ -1,19 +1,28 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronLeft, Printer, Loader2 } from "lucide-react"
+import { Printer, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { GovFooter } from "@/components/gov-footer"
 import { useAuth } from "@/lib/auth-context"
+import { useRouter } from "next/navigation"
+import { GovHeader } from "@/components/gov-header"
+import { BetaBanner } from "@/components/beta-banner"
 
 export default function ShareCodePage() {
-  const { user } = useAuth()
+  const { user, isLoading, isAuthenticated } = useAuth()
+  const router = useRouter()
   const [shareCode, setShareCode] = useState<string>("")
   const [expiryDate, setExpiryDate] = useState<string>("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
     if (!user?.id) return
 
     const fetchShareCode = async () => {
@@ -49,42 +58,44 @@ export default function ShareCodePage() {
   }
 
   return (
-    <main className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1">
-        <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen flex flex-col bg-white">
+      <GovHeader />
+      <BetaBanner />
+      <main className="flex-1 max-w-[960px] mx-auto w-full px-4 py-8">
+        <div className="max-w-[640px]">
           {/* Back Link */}
           <Link 
             href="/profile" 
-            className="inline-flex items-center text-primary hover:underline mb-8"
+            className="text-govuk-black underline hover:decoration-3 mb-8 flex items-center gap-1 text-xl cursor-pointer"
           >
-            <ChevronLeft className="w-4 h-4 mr-1" />
+            <span className="inline-block border-l-2 border-b-2 border-current w-2.5 h-2.5 rotate-45 mr-1 mb-0.5"></span>
             Back
           </Link>
 
-          <h1 className="text-2xl font-bold text-foreground mb-8">
+          <h1 className="text-4xl font-bold mb-10">
             Details to give your employer
           </h1>
 
           {/* Share Code Section */}
-          <div className="mb-6">
-            <p className="text-sm font-medium text-foreground mb-2">Share code</p>
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold text-govuk-black mb-4">Share code</h2>
             {loading ? (
-              <div className="flex items-center gap-2 text-muted-foreground py-4">
+              <div className="flex items-center gap-2 text-govuk-grey-1 py-4">
                 <Loader2 className="w-6 h-6 animate-spin" />
-                <span>Fetching share code...</span>
+                <span className="text-xl">Fetching share code...</span>
               </div>
             ) : error ? (
-              <p className="text-destructive font-bold py-4">{error}</p>
+              <p className="text-destructive font-bold py-4 text-xl">{error}</p>
             ) : (
               <>
-                <p className="text-3xl sm:text-4xl font-bold text-foreground tracking-wide mb-4">
+                <p className="text-5xl sm:text-6xl font-bold text-govuk-black tracking-tight mb-8">
                   {shareCode}
                 </p>
 
                 {/* Validity Notice */}
-                <div className="border-l-4 border-muted-foreground bg-muted/30 pl-4 py-3">
-                  <p className="text-foreground">
-                    This code is valid until {expiryDate}.
+                <div className="border-l-[10px] border-govuk-grey-2 bg-govuk-grey-3 pl-4 py-4 mb-10">
+                  <p className="text-xl mb-0">
+                    This code is valid until <span className="font-bold">{expiryDate}</span>.
                   </p>
                 </div>
               </>
@@ -92,40 +103,40 @@ export default function ShareCodePage() {
           </div>
 
           {/* What to do next */}
-          <div className="mb-8">
-            <h2 className="text-lg font-bold text-foreground mb-4">What to do next</h2>
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-govuk-black mb-6">What to do next</h2>
             
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* Step 1 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center font-bold text-sm">
+              <div className="flex gap-4 items-start">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-govuk-black text-white flex items-center justify-center font-bold text-xl">
                   1
                 </div>
-                <p className="text-foreground pt-1">
+                <p className="text-xl text-govuk-black pt-1">
                   Give the share code and your date of birth to the person you want to prove your right to work to.
                 </p>
               </div>
 
               {/* Step 2 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center font-bold text-sm">
+              <div className="flex gap-4 items-start">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-govuk-black text-white flex items-center justify-center font-bold text-xl">
                   2
                 </div>
-                <p className="text-foreground pt-1">
+                <p className="text-xl text-govuk-black pt-1">
                   To see your right to work, they must enter the share code and your date of birth at{" "}
-                  <span className="text-primary hover:underline cursor-pointer">
+                  <button className="text-govuk-blue underline hover:decoration-3">
                     www.gov.uk/view-right-to-work
-                  </span>
+                  </button>
                   .
                 </p>
               </div>
 
               {/* Step 3 */}
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center font-bold text-sm">
+              <div className="flex gap-4 items-start">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-govuk-black text-white flex items-center justify-center font-bold text-xl">
                   3
                 </div>
-                <p className="text-foreground pt-1">
+                <p className="text-xl text-govuk-black pt-1">
                   Contact them to make sure they have all the information they need.
                 </p>
               </div>
@@ -133,16 +144,18 @@ export default function ShareCodePage() {
           </div>
 
           {/* Print Link */}
-          <button
-            onClick={handlePrint}
-            className="inline-flex items-center gap-2 text-primary hover:underline"
-          >
-            <Printer className="w-5 h-5" />
-            Print this page
-          </button>
+          <div className="pt-8 border-t-[1px] border-govuk-grey-2">
+            <button
+              onClick={handlePrint}
+              className="inline-flex items-center gap-3 text-govuk-blue underline hover:decoration-3 text-xl"
+            >
+              <Printer className="w-6 h-6" />
+              Print this page
+            </button>
+          </div>
         </div>
-      </div>
+      </main>
       <GovFooter />
-    </main>
+    </div>
   )
 }

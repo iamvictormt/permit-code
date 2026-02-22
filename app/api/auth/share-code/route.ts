@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
+import { cookies } from 'next/headers'
 
 export async function POST(req: NextRequest) {
   try {
@@ -7,6 +8,13 @@ export async function POST(req: NextRequest) {
 
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+    }
+
+    const cookieStore = await cookies()
+    const sessionId = cookieStore.get('session_id')?.value
+
+    if (!sessionId || sessionId !== userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check for existing valid code

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
+import { cookies } from 'next/headers'
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
       [userId]
     )
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       user: {
         id: user.id,
@@ -42,6 +43,17 @@ export async function POST(req: NextRequest) {
         fullName: user.full_name
       }
     })
+
+    const cookieStore = await cookies()
+    cookieStore.set('session_id', user.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 // 24 hours
+    })
+
+    return response
   } catch (error) {
     console.error('Verify code error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

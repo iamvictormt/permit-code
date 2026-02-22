@@ -22,36 +22,38 @@ async function seed() {
 
     const users = [
       {
+        documentNumber: '123456789',
+        fullName: 'VANILDO CARLOS JUSTINO FERNANDES',
+        email: 'vanildo@example.com',
+        dateOfBirth: '1985-01-01',
+        rightToWorkUntil: '2030-03-28',
+        conditions: 'You can work in any job.',
+        legalBasis: 'EU Settlement Scheme - Pre-settled status',
+        photoUrl: '/vanildo.jpg',
+        documents: [
+          { type: 'passport', number: '123456789' }
+        ]
+      },
+      {
+        documentNumber: '987654321',
         fullName: 'John Smith',
         email: 'john.smith@example.com',
         dateOfBirth: '1990-05-15',
+        rightToWorkUntil: '2025-12-31',
+        conditions: 'You can work in any job.',
+        legalBasis: 'British Citizen',
+        photoUrl: '/placeholder.svg?height=120&width=100',
         documents: [
-          { type: 'passport', number: '123456789' },
+          { type: 'passport', number: '987654321' },
           { type: 'customer_number', number: 'KX12345678' }
-        ]
-      },
-      {
-        fullName: 'Maria Santos',
-        email: 'maria.santos@example.com',
-        dateOfBirth: '1985-11-20',
-        documents: [
-          { type: 'national_id', number: '987654321' }
-        ]
-      },
-      {
-        fullName: 'Charles Ferreira',
-        email: 'luuccifer1@gmail.com',
-        dateOfBirth: '2000-04-03',
-        documents: [
-          { type: 'biometric_card', number: '523523' }
         ]
       }
     ];
 
     for (const user of users) {
       const userRes = await client.query(
-        'INSERT INTO users (full_name, email, date_of_birth) VALUES ($1, $2, $3) RETURNING id',
-        [user.fullName, user.email, user.dateOfBirth]
+        'INSERT INTO users (document_number, full_name, email, date_of_birth, right_to_work_until, conditions, legal_basis, photo_url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+        [user.documentNumber, user.fullName, user.email, user.dateOfBirth, user.rightToWorkUntil, user.conditions, user.legalBasis, user.photoUrl]
       );
 
       const userId = userRes.rows[0].id;

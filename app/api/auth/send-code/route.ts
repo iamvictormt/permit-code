@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY || 're_123')
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,17 +25,21 @@ export async function POST(req: NextRequest) {
       [code, expiresAt, userId]
     )
 
-    // Send email via Resend
-    const { data, error } = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: user.email,
-      subject: 'Your UKVI security code',
-      html: `<p>Your 6-digit security code is: <strong>${code}</strong></p><p>This code will expire in 10 minutes.</p>`
-    })
+    // Send email via Resend (skip if API key is missing for demo/testing)
+    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_123') {
+      const { data, error } = await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: user.email,
+        subject: 'Your UKVI security code',
+        html: `<p>Your 6-digit security code is: <strong>${code}</strong></p><p>This code will expire in 10 minutes.</p>`
+      })
 
-    if (error) {
-      console.error('Resend error:', error)
-      return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
+      if (error) {
+        console.error('Resend error:', error)
+        return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
+      }
+    } else {
+      console.log('Skipping Resend: API key missing or demo key');
     }
 
     return NextResponse.json({ success: true })
