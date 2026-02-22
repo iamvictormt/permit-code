@@ -1,43 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { query } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
     const { userId, code } = await req.json()
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    })
+    const res = await query(
+      'SELECT id, email, full_name, auth_code, auth_code_expires_at FROM users WHERE id = $1',
+      [userId]
+    )
 
-    if (!user || !user.authCode || !user.authCodeExpiresAt) {
+    if (res.rowCount === 0) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
     }
 
-    if (user.authCode !== code) {
+    const user = res.rows[0]
+
+    if (!user.auth_code || !user.auth_code_expires_at) {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+    }
+
+    if (user.auth_code !== code) {
       return NextResponse.json({ error: 'Invalid security code' }, { status: 400 })
     }
 
-    if (new Date() > user.authCodeExpiresAt) {
+    if (new Date() > new Date(user.auth_code_expires_at)) {
       return NextResponse.json({ error: 'Security code expired' }, { status: 400 })
     }
 
     // Clear the code after successful verification
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        authCode: null,
-        authCodeExpiresAt: null
-      }
-    })
+    await query(
+      'UPDATE users SET auth_code = NULL, auth_code_expires_at = NULL WHERE id = $1',
+      [userId]
+    )
 
-    // In a real app, we would set a session cookie here.
-    // For this task, we return success and the frontend redirects.
     return NextResponse.json({
       success: true,
       user: {
         id: user.id,
         email: user.email,
-        fullName: user.fullName
+        fullName: user.full_name
       }
     })
   } catch (error) {

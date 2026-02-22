@@ -1,38 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { query } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
     const { documentType, documentNumber, day, month, year } = await req.json()
 
-    // Format DOB to check (Prisma stores it as DateTime)
-    // Be careful with timezones, usually better to check year/month/day components
-    const dob = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
+    // Format DOB string to match PostgreSQL DATE format (YYYY-MM-DD)
+    const formattedDob = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
 
-    const document = await prisma.document.findFirst({
-      where: {
-        type: documentType,
-        number: documentNumber,
-      },
-      include: {
-        user: true,
-      },
-    })
+    // Join users and documents to validate
+    const res = await query(`
+      SELECT u.id, u.email, u.date_of_birth
+      FROM users u
+      JOIN documents d ON u.id = d.user_id
+      WHERE d.type = $1 AND d.number = $2
+    `, [documentType, documentNumber])
 
-    if (!document) {
+    if (res.rowCount === 0) {
       return NextResponse.json({ error: 'Details do not match' }, { status: 404 })
     }
 
-    const user = document.user
+    const user = res.rows[0]
 
-    // Check if DOB matches (ignoring time)
-    const userDob = new Date(user.dateOfBirth)
-    const match =
-      userDob.getUTCFullYear() === dob.getFullYear() &&
-      userDob.getUTCMonth() === dob.getMonth() &&
-      userDob.getUTCDate() === dob.getDate()
+    // Check if DOB matches
+    // Note: user.date_of_birth from pg might be a Date object or string depending on driver config
+    const dbDob = new Date(user.date_of_birth)
+    const inputDob = new Date(formattedDob)
 
-    if (!match) {
+    if (dbDob.toISOString().split('T')[0] !== inputDob.toISOString().split('T')[0]) {
       return NextResponse.json({ error: 'Details do not match' }, { status: 404 })
     }
 
