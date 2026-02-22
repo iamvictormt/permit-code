@@ -24,7 +24,6 @@ export default function ProfilePage() {
   const [legalBasisOpen, setLegalBasisOpen] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [fetchingProfile, setFetchingProfile] = useState(true);
-  const [imageRotation, setImageRotation] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,10 +48,6 @@ export default function ProfilePage() {
     }
   }, [user?.id]);
 
-  const handleRotate = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setImageRotation((prev) => (prev + 90) % 360);
-  };
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
@@ -133,33 +128,19 @@ export default function ProfilePage() {
           {/* Main Card with Blue Border */}
           <div className="border-[1px] border-govuk-blue shadow-sm mb-12">
             {/* Header with blue background */}
-            <div className="bg-govuk-blue text-white px-4 py-2 text-xl font-bold">
-              Right to work
-            </div>
+            <div className="bg-govuk-blue text-white px-4 py-2 text-xl font-bold">Right to work</div>
 
             <div className="p-6">
               {/* Photo and Rotate Section */}
               <div className="mb-6">
                 <div
-                  onClick={handlePhotoClick}
-                  className="relative inline-block border-[1px] border-govuk-grey-2 bg-govuk-grey-3 p-0 mb-4 transition-transform duration-300 cursor-pointer group overflow-hidden"
-                  style={{ transform: `rotate(${imageRotation}deg)` }}
+                  className="relative inline-block border-[1px] border-govuk-grey-2 bg-govuk-grey-3 p-0 mb-4 transition-transform duration-300 group overflow-hidden"
                 >
                   <img
                     src={profileData.photo_url || '/placeholder.svg'}
                     alt="Profile photo"
                     className="w-[140px] h-[180px] object-cover"
                   />
-
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="text-white text-center p-2">
-                      <span className="text-sm font-bold block mb-2">
-                        {profileData.photo_url ? 'Change photo' : 'Upload photo'}
-                      </span>
-                      <Camera className="w-8 h-8 mx-auto" />
-                    </div>
-                  </div>
 
                   {/* Loading Indicator */}
                   {isUploading && (
@@ -169,29 +150,21 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  className="hidden"
-                />
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
 
                 <div>
                   <button
-                    onClick={handleRotate}
-                    className="flex items-center gap-2 bg-govuk-grey-3 hover:bg-govuk-grey-2 text-govuk-black px-4 py-2 border-b-2 border-govuk-grey-1 text-lg"
+                    onClick={handlePhotoClick}
+                    className="flex items-center gap-2 bg-govuk-grey-3 hover:bg-govuk-grey-2 text-govuk-black px-4 py-2 border-b-2 border-govuk-grey-1 text-lg cursor-pointer"
                   >
-                    Rotate
+                    Photo
                     <RotateCw className="w-5 h-5" />
                   </button>
                 </div>
               </div>
 
               {/* User Name */}
-              <h2 className="text-3xl font-bold mb-6 uppercase tracking-tight">
-                {profileData.full_name}
-              </h2>
+              <h2 className="text-2xl font-bold mb-6 uppercase tracking-tight">{profileData.full_name}</h2>
 
               {/* Status Sentence */}
               <p className="text-xl mb-8 leading-relaxed">
@@ -206,13 +179,16 @@ export default function ProfilePage() {
 
                 <div className="space-y-6 text-govuk-black leading-relaxed">
                   <p className="text-lg">
-                    To continue to work after this date, you will need to have either pre-settled status or settled status
-                    under the EU Settlement Scheme (or another type of permission to stay).
+                    To continue to work after this date, you will need to have either pre-settled status or settled
+                    status under the EU Settlement Scheme (or another type of permission to stay).
                   </p>
                   <p className="text-lg">
-                    You can apply to switch to settled status as soon as you are eligible for it. This is usually once you
-                    have lived in the UK for 5 years. Find out{' '}
-                    <button className="text-govuk-blue underline hover:decoration-3">how to switch to settled status</button>.
+                    You can apply to switch to settled status as soon as you are eligible for it. This is usually once
+                    you have lived in the UK for 5 years. Find out{' '}
+                    <button className="text-govuk-blue underline hover:decoration-3">
+                      how to switch to settled status
+                    </button>
+                    .
                   </p>
                 </div>
               </div>
@@ -223,7 +199,9 @@ export default function ProfilePage() {
                   onClick={() => setLegalBasisOpen(!legalBasisOpen)}
                   className="flex items-center gap-2 text-govuk-blue underline hover:decoration-3 text-lg"
                 >
-                  <Play className={`w-3 h-3 fill-govuk-blue transition-transform ${legalBasisOpen ? 'rotate-90' : ''}`} />
+                  <Play
+                    className={`w-3 h-3 fill-govuk-blue transition-transform ${legalBasisOpen ? 'rotate-90' : ''}`}
+                  />
                   Legal basis of status
                 </button>
 
@@ -237,16 +215,17 @@ export default function ProfilePage() {
           </div>
 
           {/* Prove your right to work Section */}
-          <div className="border-t-[1px] border-govuk-grey-2 pt-8">
             <h2 className="text-2xl font-bold mb-4">Prove your right to work</h2>
             <p className="text-lg mb-6 leading-relaxed">
               To share your details with an employer, you need to create a right to work share code.
             </p>
-            <Button asChild className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-6 py-4 h-auto text-xl shadow-[0_4px_0_#002d18] w-full sm:w-auto">
+            <Button
+              asChild
+              className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-6 py-4 h-auto text-xl shadow-[0_4px_0_#002d18] w-full sm:w-auto"
+            >
               <Link href="/profile/share-code">Get a share code</Link>
             </Button>
-          </div>
-        </div>
+         </div>
       </main>
       <GovFooter />
     </div>

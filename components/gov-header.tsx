@@ -11,10 +11,10 @@ export function GovHeader() {
   const pathname = usePathname();
 
   const headerBgColor = isAuthenticated && pathname.includes('/profile') ? 'bg-black' : 'bg-govuk-blue';
-  const showBlueBar = isAuthenticated && pathname.includes('/profile');
+  const showBlackBar = isAuthenticated && pathname.includes('/profile');
 
   return (
-    <header className="mb-0">
+    <header>
       <div className={`${headerBgColor} py-3 transition-colors`}>
         <div className="max-w-[960px] mx-auto">
           <div className="flex items-center justify-between">
@@ -29,14 +29,14 @@ export function GovHeader() {
             </Link>
           </div>
         </div>
-      </div>
-      {showBlueBar && (
-        <div className="bg-govuk-blue py-3">
-          <div className="max-w-[960px] mx-auto px-4">
-            <h1 className="text-white text-2xl font-bold mb-0">Prove your right to work</h1>
+        {showBlackBar && (
+          <div className="bg-black py-3">
+            <div className="max-w-[960px] mx-auto px-4">
+              <h1 className="text-white text-2xl font-bold mb-0">Prove your right to work</h1>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 }
