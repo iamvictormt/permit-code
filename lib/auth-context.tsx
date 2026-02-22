@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 
 interface AuthUser {
   id: string
@@ -27,7 +27,15 @@ const DEMO_USERS = [
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem("auth_user")
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+    setIsLoading(false)
+  }, [])
 
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true)
@@ -56,10 +64,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithUser = useCallback((userData: AuthUser) => {
     setUser(userData)
+    sessionStorage.setItem("auth_user", JSON.stringify(userData))
   }, [])
 
   const logout = useCallback(() => {
     setUser(null)
+    sessionStorage.removeItem("auth_user")
   }, [])
 
   return (

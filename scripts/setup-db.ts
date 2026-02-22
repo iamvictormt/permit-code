@@ -32,9 +32,14 @@ async function setup() {
     await client.query(`
       CREATE TABLE users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        document_number TEXT UNIQUE,
         full_name TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         date_of_birth DATE NOT NULL,
+        right_to_work_until DATE,
+        conditions TEXT,
+        legal_basis TEXT,
+        photo_url TEXT,
         verification_level TEXT DEFAULT 'LOW',
         account_status TEXT DEFAULT 'ACTIVE',
         auth_code TEXT,
