@@ -3,12 +3,15 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 
 export function GovHeader() {
   const { isAuthenticated } = useAuth();
+  const pathname = usePathname();
 
   const headerBgColor = isAuthenticated ? 'bg-black' : 'bg-govuk-blue';
+  const showBlueBar = isAuthenticated && pathname.includes('/profile');
 
   return (
     <header className="mb-0">
@@ -27,7 +30,7 @@ export function GovHeader() {
           </div>
         </div>
       </div>
-      {isAuthenticated && (
+      {showBlueBar && (
         <div className="bg-govuk-blue py-3">
           <div className="max-w-[960px] mx-auto px-4">
             <h1 className="text-white text-2xl font-bold mb-0">Prove your right to work</h1>
