@@ -86,17 +86,20 @@ const validateDate = (dob: DateOfBirth): DateErrors => {
 type SecurityCodeMethod = 'sms' | 'email';
 
 export default function LoginPage() {
-  const [step, setStep] = useState<'document' | 'document_number' | 'date_of_birth' | 'security_code' | 'verify_code'>(
+  const [step, setStep] = useState<'document' | 'document_number' | 'date_of_birth' | 'details_mismatch' | 'security_code' | 'verify_code'>(
     'document',
   );
   const [documentType, setDocumentType] = useState<DocumentType | ''>('');
   const [documentNumber, setDocumentNumber] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState<DateOfBirth>({ day: '', month: '', year: '' });
   const [dateErrors, setDateErrors] = useState<DateErrors>({});
-  const [securityCodeMethod, setSecurityCodeMethod] = useState<SecurityCodeMethod | ''>('');
+  const [securityCodeMethod, setSecurityCodeMethod] = useState<SecurityCodeMethod | ''>('email');
   const [securityCode, setSecurityCode] = useState('');
   const [error, setError] = useState('');
-  const { login, isLoading } = useAuth();
+  const [userId, setUserId] = useState('');
+  const [maskedEmail, setMaskedEmail] = useState('');
+  const [isApiLoading, setIsApiLoading] = useState(false);
+  const { loginWithUser } = useAuth();
   const router = useRouter();
 
   const handleContinueToDocumentNumber = () => {
@@ -117,7 +120,7 @@ export default function LoginPage() {
     setStep('date_of_birth');
   };
 
-  const handleContinueToSecurityCode = (e: React.FormEvent) => {
+  const handleContinueToSecurityCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setDateErrors({});
@@ -125,21 +128,64 @@ export default function LoginPage() {
     const errors = validateDate(dateOfBirth);
     if (Object.keys(errors).length > 0) {
       setDateErrors(errors);
-      // Construct a generic error message for the summary box
       setError('Check your date of birth is correct');
       return;
     }
 
-    setStep('security_code');
+    setIsApiLoading(true);
+    try {
+      const response = await fetch('/api/auth/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          documentType,
+          documentNumber,
+          ...dateOfBirth,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUserId(data.userId);
+        setMaskedEmail(data.maskedEmail);
+        setStep('security_code');
+      } else {
+        setStep('details_mismatch');
+      }
+    } catch (err) {
+      setError('An error occurred during validation');
+    } finally {
+      setIsApiLoading(false);
+    }
   };
 
-  const handleContinueToVerifyCode = () => {
+  const handleContinueToVerifyCode = async () => {
     if (!securityCodeMethod) {
       setError('Select how you want to receive a security code');
       return;
     }
-    setError('');
-    setStep('verify_code');
+
+    setIsApiLoading(true);
+    try {
+      const response = await fetch('/api/auth/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (response.ok) {
+        setError('');
+        setStep('verify_code');
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to send security code');
+      }
+    } catch (err) {
+      setError('An error occurred while sending the code');
+    } finally {
+      setIsApiLoading(false);
+    }
   };
 
   const handleVerifyCode = async () => {
@@ -148,12 +194,32 @@ export default function LoginPage() {
       return;
     }
 
-    const result = await login('admin@empresa.com', 'admin123');
+    setIsApiLoading(true);
+    try {
+      const response = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, code: securityCode }),
+      });
 
-    if (result.success) {
-      router.push('/profile');
-    } else {
-      setError(result.error || 'Login failed');
+      const data = await response.json();
+
+      if (response.ok) {
+        // We use the existing login function to update the local context state
+        loginWithUser({
+          id: data.user.id,
+          email: data.user.email,
+          full_name: data.user.fullName,
+          role: 'user'
+        });
+        router.push('/profile');
+      } else {
+        setError(data.error || 'Invalid security code');
+      }
+    } catch (err) {
+      setError('An error occurred during verification');
+    } finally {
+      setIsApiLoading(false);
     }
   };
 
@@ -239,6 +305,9 @@ export default function LoginPage() {
       case 'date_of_birth':
         setStep('document_number');
         break;
+      case 'details_mismatch':
+        setStep('date_of_birth');
+        break;
       case 'security_code':
         setStep('date_of_birth');
         break;
@@ -251,17 +320,82 @@ export default function LoginPage() {
     setError('');
   };
 
+  const getMonthName = (month: string) => {
+    try {
+      const date = new Date(2000, parseInt(month) - 1, 1);
+      return date.toLocaleString('en-GB', { month: 'long' });
+    } catch (e) {
+      return '';
+    }
+  };
+
+  if (step === 'details_mismatch') {
+    return (
+      <PageLayout goBack={goBack} error={error}>
+        <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
+        <h1 className="text-4xl font-bold mb-8">The details entered do not match our records</h1>
+
+        <div className="bg-govuk-grey-3 p-6 mb-8 border-l-8 border-govuk-grey-1">
+          <h2 className="text-xl font-bold mb-2">{getDocumentLabel()}</h2>
+          <p className="text-xl mb-4">{documentNumber}</p>
+          <h2 className="text-xl font-bold mb-2">Date of birth</h2>
+          <p className="text-xl">{dateOfBirth.day.padStart(2, '0')} {getMonthName(dateOfBirth.month)} {dateOfBirth.year}</p>
+        </div>
+
+        <div className="space-y-6 mb-8">
+          <h2 className="text-2xl font-bold">Check you are using the right identity document</h2>
+
+          <div>
+            <h3 className="text-xl font-bold mb-2">If you have updated your identity document</h3>
+            <p className="text-lg">The document you need to sign in is the most recent one you added to your account.</p>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-bold mb-2">If you have not changed your identity document</h3>
+            <p className="text-lg">The document you need to sign in is the one you used to create your account.</p>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Problems signing in</h2>
+          <ul className="space-y-2">
+            <li>
+              <Link href="/login/recover" className="underline text-govuk-blue hover:text-govuk-blue/80">
+                I do not know my identity document or UKVI customer number
+              </Link>
+            </li>
+            <li className="flex items-center gap-2">
+               <span className="inline-block border-t-2 border-r-2 border-current w-2 h-2 rotate-45"></span>
+               <button className="underline text-govuk-blue">If your details are correct and you still cannot sign in</button>
+            </li>
+          </ul>
+        </div>
+
+        <div className="mt-8 border-l-8 border-govuk-grey-2 bg-govuk-grey-3 p-4 mb-8">
+          <p className="text-lg">Need help? <a href="#" className="underline text-govuk-blue">Contact us</a></p>
+        </div>
+
+        <Button
+          onClick={() => setStep('document')}
+          className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-6 py-2 h-auto text-xl shadow-[0_2px_0_#002d18]"
+        >
+          Try again
+        </Button>
+      </PageLayout>
+    );
+  }
+
   if (step === 'verify_code') {
     return (
       <PageLayout goBack={goBack} error={error}>
         <span className="text-govuk-grey-1 text-xl block mb-2">Sign in</span>
-        <h1 className="text-4xl font-bold mb-6">Check your {securityCodeMethod === 'email' ? 'email' : 'phone'}</h1>
+        <h1 className="text-4xl font-bold mb-6">Check your email</h1>
         <p className="text-lg mb-4">
           We have sent you a single-use, 6-digit security code by{' '}
-          {securityCodeMethod === 'email' ? 'email' : 'text message'} to:
+          email to:
         </p>
         <p className="text-lg font-bold mb-4">
-          {securityCodeMethod === 'email' ? 'v***********p@gmail.com' : '075*****886'}
+          {maskedEmail}
         </p>
         <p className="text-lg mb-8">
           It may take a few minutes to arrive. You need to use this code within 10 minutes or it will expire.
@@ -280,8 +414,8 @@ export default function LoginPage() {
           />
         </div>
 
-        <Button onClick={handleVerifyCode} disabled={isLoading} className="mb-8">
-          {isLoading ? 'Verifying...' : 'Continue'}
+        <Button onClick={handleVerifyCode} disabled={isApiLoading} className="mb-8">
+          {isApiLoading ? 'Verifying...' : 'Continue'}
         </Button>
 
         <p className="text-lg">
@@ -327,21 +461,15 @@ export default function LoginPage() {
           className="mb-8"
         >
           <div className="flex items-center space-x-4">
-            <RadioGroupItem value="sms" id="sms" />
-            <Label htmlFor="sms" className="text-lg cursor-pointer">
-              Send a text message (SMS) to <span className="font-bold">075*****886</span>
-            </Label>
-          </div>
-          <div className="flex items-center space-x-4">
             <RadioGroupItem value="email" id="email" />
             <Label htmlFor="email" className="text-lg cursor-pointer">
-              Send an email to <span className="font-bold">v***********p@gmail.com</span>
+              Send an email to <span className="font-bold">{maskedEmail}</span>
             </Label>
           </div>
         </RadioGroup>
 
-        <Button onClick={handleContinueToVerifyCode} className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-4 py-2 h-auto text-sm sm:text-base shadow-[0_2px_0_#002d18] mb-8">
-          Continue
+        <Button onClick={handleContinueToVerifyCode} disabled={isApiLoading} className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-4 py-2 h-auto text-sm sm:text-base shadow-[0_2px_0_#002d18] mb-8">
+          {isApiLoading ? 'Loading...' : 'Continue'}
         </Button>
 
         <div className="mt-12 pt-8 border-t border-govuk-grey-2">
@@ -463,7 +591,9 @@ export default function LoginPage() {
             </div>
           ) : (
             <>
-              <p className="text-govuk-grey-1 mb-2 text-xl">{getDocumentLabel()}</p>
+              <Label htmlFor="documentNumber" className="text-govuk-grey-1 mb-2 text-xl block">
+                {getDocumentLabel()}
+              </Label>
               <p className="text-govuk-grey-1 mb-2 text-xl">{getDocumentExample()}</p>
               <Input
                 id="documentNumber"

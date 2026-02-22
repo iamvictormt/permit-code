@@ -13,6 +13,7 @@ interface AuthContextType {
   user: AuthUser | null
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  loginWithUser: (userData: AuthUser) => void
   logout: () => void
   isAuthenticated: boolean
 }
@@ -53,6 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { success: false, error: "Email ou senha inválidos" }
   }, [])
 
+  const loginWithUser = useCallback((userData: AuthUser) => {
+    setUser(userData)
+  }, [])
+
   const logout = useCallback(() => {
     setUser(null)
   }, [])
@@ -63,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         isLoading,
         login,
+        loginWithUser,
         logout,
         isAuthenticated: !!user,
       }}
