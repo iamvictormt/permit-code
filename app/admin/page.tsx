@@ -442,12 +442,6 @@ export default function AdminDashboard() {
                       </span>
                     </td>
                     <td className="py-4 text-right space-x-3">
-                      {/* <button
-                        onClick={() => openEditModal(user)}
-                        className="text-govuk-blue hover:text-govuk-blue/80 inline-flex items-center gap-1 text-sm font-medium"
-                      >
-                        <Pencil className="w-3 h-3" /> Alterar
-                      </button> */}
                        <button
                         onClick={() => openEditModal(user)}
                         className="text-govuk-blue hover:text-govuk-blue/80 inline-flex items-center gap-1 text-sm font-medium cursor-pointer"
