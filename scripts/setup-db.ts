@@ -35,6 +35,8 @@ async function setup() {
         document_number TEXT UNIQUE,
         full_name TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
+        password TEXT,
+        role TEXT DEFAULT 'user',
         date_of_birth DATE NOT NULL,
         right_to_work_until DATE,
         conditions TEXT,
@@ -45,6 +47,7 @@ async function setup() {
         auth_code TEXT,
         auth_code_expires_at TIMESTAMP,
         share_code TEXT,
+        share_code_created_at TIMESTAMP,
         share_code_expires_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

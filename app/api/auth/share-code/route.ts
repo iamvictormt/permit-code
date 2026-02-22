@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     expiresAt.setMonth(expiresAt.getMonth() + 3)
 
     await query(
-      'UPDATE users SET share_code = $1, share_code_expires_at = $2 WHERE id = $3',
+      'UPDATE users SET share_code = $1, share_code_expires_at = $2, share_code_created_at = CURRENT_TIMESTAMP WHERE id = $3',
       [shareCode, expiresAt, userId]
     )
 
