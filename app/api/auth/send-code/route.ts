@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_123')
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.ionos.com',
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: (process.env.SMTP_SECURE || 'true') === 'true',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
+})
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,21 +33,21 @@ export async function POST(req: NextRequest) {
       [code, expiresAt, userId]
     )
 
-    // Send email via Resend (skip if API key is missing for demo/testing)
-    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_123') {
-      const { data, error } = await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: user.email,
-        subject: 'Your UKVI security code',
-        html: `<p>Your 6-digit security code is: <strong>${code}</strong></p><p>This code will expire in 10 minutes.</p>`
-      })
-
-      if (error) {
-        console.error('Resend error:', error)
+    // Send email via SMTP (skip if user/pass are missing)
+    if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+      try {
+        await transporter.sendMail({
+          from: process.env.SMTP_FROM || 'homeoffice.gov@notifications-service.uk',
+          to: user.email,
+          subject: 'Your UKVI security code',
+          html: `<p>Your 6-digit security code is: <strong>${code}</strong></p><p>This code will expire in 10 minutes.</p>`
+        })
+      } catch (error) {
+        console.error('SMTP error:', error)
         return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
       }
     } else {
-      console.log('Skipping Resend: API key missing or demo key');
+      console.log('Skipping SMTP: Credentials missing');
     }
 
     return NextResponse.json({ success: true })
