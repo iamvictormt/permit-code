@@ -263,12 +263,12 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 md:space-y-12 p-4 md:p-0">
 
       {/* Share Code Verification Section */}
-      <section className="border-4 border-govuk-black p-6">
-        <h2 className="text-2xl font-bold mb-4">Verify Share Code</h2>
-        <form onSubmit={handleVerify} className="space-y-4 max-w-[400px]">
+      <section className="border-4 border-govuk-black p-4 md:p-6">
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Verify Share Code</h2>
+        <form onSubmit={handleVerify} className="space-y-4 w-full md:max-w-[400px]">
           <div>
             <Label htmlFor="shareCode" className="font-bold">
               Enter 9-character share code
@@ -308,10 +308,10 @@ export default function AdminDashboard() {
 
       {/* User Registration Section */}
       <section>
-        <h2 className="text-3xl font-bold mb-6">Register New User</h2>
+        <h2 className="text-2xl md:text-3xl font-bold mb-6">Register New User</h2>
         <form
           onSubmit={handleRegister}
-          className="max-w-[600px] space-y-6 bg-govuk-grey-3 p-8 border border-govuk-grey-2"
+          className="w-full md:max-w-[600px] space-y-6 bg-govuk-grey-3 p-4 md:p-8 border border-govuk-grey-2"
         >
           {regError && (
             <div className="bg-red-50 border-2 border-red-600 p-4 mb-4 text-red-700 font-bold">{regError}</div>
@@ -369,15 +369,15 @@ export default function AdminDashboard() {
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="passport" id="doc-passport" />
-                <Label htmlFor="doc-passport">Passport</Label>
+                <Label htmlFor="doc-passport" className="text-sm md:text-base">Passport</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="national_id" id="doc-id" />
-                <Label htmlFor="doc-id">National ID Card</Label>
+                <Label htmlFor="doc-id" className="text-sm md:text-base">National ID Card</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="biometric_card" id="doc-biometric" />
-                <Label htmlFor="doc-biometric">Biometric Card</Label>
+                <Label htmlFor="doc-biometric" className="text-sm md:text-base">Biometric Card</Label>
               </div>
             </RadioGroup>
             <Label htmlFor="docNumber" className="font-bold mb-1 block">
@@ -399,68 +399,69 @@ export default function AdminDashboard() {
 
       {/* User Management List */}
       <section>
-        <h2 className="text-3xl font-bold mb-6">Manage Users</h2>
+        <h2 className="text-2xl md:text-3xl font-bold mb-6">Manage Users</h2>
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full border-collapse text-sm md:text-base">
             <thead>
-              <tr className="border-b-2 border-govuk-black text-left">
-                <th className="py-2 pr-4 font-bold">Name / Email</th>
-                <th className="py-2 pr-4 font-bold">Document</th>
-                <th className="py-2 pr-4 font-bold">Status</th>
+              <tr className="border-b border-govuk-grey-2 text-left hidden md:table-row">
+                <th className="py-2 pr-2 md:pr-4 font-bold">Name / Email</th>
+                <th className="py-2 pr-2 md:pr-4 font-bold">Document</th>
+                <th className="py-2 pr-2 md:pr-4 font-bold">Status</th>
                 <th className="py-2 font-bold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="block md:table-row-group">
               {isLoadingUsers ? (
-                <tr>
-                  <td colSpan={4} className="py-8 text-center">
+                <tr className="block md:table-row mb-4 md:mb-0">
+                  <td colSpan={4} className="py-8 text-center block md:table-cell">
                     <Loader2 className="w-6 h-6 animate-spin mx-auto text-govuk-blue" />
                   </td>
                 </tr>
               ) : users.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="py-8 text-center text-govuk-grey-1">
+                <tr className="block md:table-row mb-4 md:mb-0">
+                  <td colSpan={4} className="py-8 text-center block md:table-cell text-govuk-grey-1">
                     No users found
                   </td>
                 </tr>
               ) : (
                 users.map((user) => (
-                  <tr key={user.id} className="border-b border-govuk-grey-2">
-                    <td className="py-4 pr-4">
-                      <div className="font-bold">{user.full_name}</div>
-                      <div className="text-sm text-govuk-grey-1">{user.email}</div>
+                  <tr key={user.id} className="border-b border-govuk-grey-2 block md:table-row mb-4 md:mb-0 p-4 md:p-0 border md:border-t rounded md:rounded-none bg-white md:bg-transparent shadow-sm md:shadow-none">
+                    <td className="py-2 md:py-4 pr-2 md:pr-4 block md:table-cell before:content-['Name/_Email:'] before:font-bold before:mr-2 md:before:content-none before:block md:before:none">
+                      <div className="font-bold md:pl-2">{user.full_name}</div>
+                      <div className="text-xs md:text-sm text-govuk-grey-1 md:pl-2">{user.email}</div>
                     </td>
-                    <td className="py-4 pr-4">
-                      <div className="text-sm uppercase font-medium">{user.document_type}</div>
-                      <div className="font-mono">{user.document_number}</div>
+                    <td className="py-2 md:py-4 pr-2 md:pr-4 block md:table-cell before:content-['Document:'] before:font-bold before:mr-2 md:before:content-none before:block md:before:none">
+                      <div className="text-xs md:text-sm uppercase font-medium ">{user.document_type}</div>
+                      <div className="font-mono text-xs md:text-base">{user.document_number}</div>
                     </td>
-                    <td className="py-4 pr-4">
+                    <td className="py-2 md:py-4 pr-2 md:pr-4 block md:table-cell before:content-['Status:'] before:font-bold before:mr-2 md:before:content-none before:block md:before:none">
                       <span
-                        className={`px-2 py-1 text-xs font-bold rounded ${user.account_status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                        className={`px-2 py-1 text-xs font-bold rounded inline-block md:inline ${user.account_status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
                       >
                         {user.account_status}
                       </span>
                     </td>
-                    <td className="py-4 text-right space-x-3">
-                       <button
-                        onClick={() => openEditModal(user)}
-                        className="text-govuk-blue hover:text-govuk-blue/80 inline-flex items-center gap-1 text-sm font-medium cursor-pointer"
-                      >
-                        <Pencil className="w-3 h-3" /> Edit
-                      </button> 
-                      <button
-                        onClick={() => handleToggleStatus(user)}
-                        className="text-govuk-blue hover:text-govuk-blue/80 inline-flex items-center gap-1 text-sm font-medium cursor-pointer"
-                      >
-                        <Plug className="w-3 h-3" /> {user.account_status === 'ACTIVE' ? 'Inactivate' : 'Activate'}
-                      </button>
-
-                      <button
-                        onClick={() => handleDeleteUser(user)}
-                        className="text-red-600 hover:text-red-800 inline-flex items-center gap-1 text-sm font-medium cursor-pointer"
-                      >
-                        <Trash2 className="w-3 h-3" /> Delete
-                      </button>
+                    <td className="py-2 md:py-4 text-right md:text-right block md:table-cell" style={{justifyItems: 'center'}}>
+                      <div className="flex flex-col md:flex-row gap-2 md:gap-3 md:space-x-3">
+                        <button
+                          onClick={() => openEditModal(user)}
+                          className="text-govuk-blue hover:text-govuk-blue/80 inline-flex items-center justify-center md:justify-start gap-1 text-xs md:text-sm font-medium cursor-pointer py-1 px-2 md:py-0 md:px-0 bg-blue-50 md:bg-transparent rounded md:rounded-none"
+                        >
+                          <Pencil className="w-3 h-3" /> <span className="md:inline">Edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleToggleStatus(user)}
+                          className="text-govuk-blue hover:text-govuk-blue/80 inline-flex items-center justify-center md:justify-start gap-1 text-xs md:text-sm font-medium cursor-pointer py-1 px-2 md:py-0 md:px-0 bg-blue-50 md:bg-transparent rounded md:rounded-none"
+                        >
+                          <Plug className="w-3 h-3" /> <span className="md:inline">{user.account_status === 'ACTIVE' ? 'Inactivate' : 'Activate'}</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user)}
+                          className="text-red-600 hover:text-red-800 inline-flex items-center justify-center md:justify-start gap-1 text-xs md:text-sm font-medium cursor-pointer py-1 px-2 md:py-0 md:px-0 bg-red-50 md:bg-transparent rounded md:rounded-none"
+                        >
+                          <Trash2 className="w-3 h-3" /> <span className="md:inline">Delete</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -472,11 +473,11 @@ export default function AdminDashboard() {
 
       {/* Edit User Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-[600px]">
+        <DialogContent className="max-w-[95vw] md:max-w-[600px] p-4 md:p-6">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Edit User</DialogTitle>
+            <DialogTitle className="text-xl md:text-2xl font-bold">Edit User</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleUpdateUser} className="space-y-4 py-4">
+          <form onSubmit={handleUpdateUser} className="space-y-4 py-4 max-h-[70vh] md:max-h-none overflow-y-auto md:overflow-y-visible">
             {editError && (
               <div className="bg-red-50 border-2 border-red-600 p-3 text-red-700 font-bold text-sm">{editError}</div>
             )}
@@ -524,19 +525,19 @@ export default function AdminDashboard() {
               <RadioGroup
                 value={editForm.documentType}
                 onValueChange={(val) => setEditForm({ ...editForm, documentType: val })}
-                className="flex gap-4"
+                className="flex flex-col md:flex-row gap-2 md:gap-4"
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="passport" id="edit-doc-passport" />
-                  <Label htmlFor="edit-doc-passport">Passport</Label>
+                  <Label htmlFor="edit-doc-passport" className="text-sm md:text-base">Passport</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="national_id" id="edit-doc-id" />
-                  <Label htmlFor="edit-doc-id">National ID</Label>
+                  <Label htmlFor="edit-doc-id" className="text-sm md:text-base">National ID</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="biometric_card" id="edit-doc-biometric" />
-                  <Label htmlFor="edit-doc-biometric">Biometric</Label>
+                  <Label htmlFor="edit-doc-biometric" className="text-sm md:text-base">Biometric</Label>
                 </div>
               </RadioGroup>
               <Input
