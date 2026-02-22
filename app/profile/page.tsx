@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
-import { RotateCw, Play } from 'lucide-react';
+import { RotateCw, Play, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { GovFooter } from '@/components/gov-footer';
 import { GovHeader } from '@/components/gov-header';
@@ -25,6 +25,8 @@ export default function ProfilePage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [fetchingProfile, setFetchingProfile] = useState(true);
   const [imageRotation, setImageRotation] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -47,8 +49,51 @@ export default function ProfilePage() {
     }
   }, [user?.id]);
 
-  const handleRotate = () => {
+  const handleRotate = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setImageRotation((prev) => (prev + 90) % 360);
+  };
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      return;
+    }
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/profile/photo', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setProfileData((prev) => (prev ? { ...prev, photo_url: data.photo_url } : null));
+      } else {
+        const errorData = await res.json();
+        console.error('Upload failed:', errorData);
+        alert('Failed to upload photo. Please try again.');
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+      alert('An error occurred during upload.');
+    } finally {
+      setIsUploading(false);
+      // Reset input so the same file can be selected again
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -96,7 +141,8 @@ export default function ProfilePage() {
               {/* Photo and Rotate Section */}
               <div className="mb-6">
                 <div
-                  className="inline-block border-[1px] border-govuk-grey-2 bg-govuk-grey-3 p-0 mb-4 transition-transform duration-300"
+                  onClick={handlePhotoClick}
+                  className="relative inline-block border-[1px] border-govuk-grey-2 bg-govuk-grey-3 p-0 mb-4 transition-transform duration-300 cursor-pointer group overflow-hidden"
                   style={{ transform: `rotate(${imageRotation}deg)` }}
                 >
                   <img
@@ -104,7 +150,33 @@ export default function ProfilePage() {
                     alt="Profile photo"
                     className="w-[140px] h-[180px] object-cover"
                   />
+
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="text-white text-center p-2">
+                      <span className="text-sm font-bold block mb-2">
+                        {profileData.photo_url ? 'Change photo' : 'Upload photo'}
+                      </span>
+                      <Camera className="w-8 h-8 mx-auto" />
+                    </div>
+                  </div>
+
+                  {/* Loading Indicator */}
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                      <div className="w-8 h-8 border-4 border-govuk-blue border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
                 </div>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+
                 <div>
                   <button
                     onClick={handleRotate}
