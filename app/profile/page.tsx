@@ -4,11 +4,26 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { RotateCw, Play, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { GovFooter } from '@/components/gov-footer';
 import { GovHeader } from '@/components/gov-header';
 import { BetaBanner } from '@/components/beta-banner';
+
+const LEGAL_BASIS_OPTIONS = [
+  'Consentimento',
+  'Legítimo interesse',
+  'Execução de contrato',
+  'Obrigação legal ou regulatória',
+  'Políticas públicas',
+  'Estudos por órgão de pesquisa',
+  'Exercício regular de direitos',
+  'Proteção da vida ou da incolumidade física',
+  'Tutela da saúde',
+  'Proteção do crédito',
+];
 
 interface ProfileData {
   full_name: string;
@@ -214,11 +229,20 @@ export default function ProfilePage() {
                 </button>
 
                 {legalBasisOpen && (
-                  <div className="mt-4 p-4 bg-govuk-grey-3 border-l-4 border-govuk-grey-2">
-                    <p className="text-lg mb-2">{profileData.legal_basis}</p>
-                    <p className="text-lg mb-0">
-                      <span className="font-bold">Expiry date:</span> {getExpiryDate(profileData.created_at)}
-                    </p>
+                  <div className="mt-4 p-6 bg-govuk-grey-3 border-l-4 border-govuk-grey-2">
+                    <RadioGroup defaultValue={profileData.legal_basis} className="gap-6">
+                      {LEGAL_BASIS_OPTIONS.map((option) => {
+                        const optionId = `legal-basis-${option.toLowerCase().replace(/\s+/g, '-')}`;
+                        return (
+                          <div key={option} className="flex items-center space-x-4">
+                            <RadioGroupItem value={option} id={optionId} />
+                            <Label htmlFor={optionId} className="text-xl cursor-pointer">
+                              {option}
+                            </Label>
+                          </div>
+                        );
+                      })}
+                    </RadioGroup>
                   </div>
                 )}
               </div>
