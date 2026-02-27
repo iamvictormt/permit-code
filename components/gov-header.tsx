@@ -24,7 +24,7 @@ export function GovHeader() {
                 alt="GOV.UK logo"
                 width={32}
                 height={16}
-                className="w-48 h-24 brightness-0 invert"
+                className="w-40 h-20 md:w-48 md:h-24 brightness-0 invert"
               />
             </Link>
           </div>
@@ -32,7 +32,7 @@ export function GovHeader() {
         {showBlackBar && (
           <div className="bg-black py-3">
             <div className="max-w-[960px] mx-auto px-4">
-              <h1 className="text-white text-2xl font-bold mb-0">Prove your right to work</h1>
+              <h1 className="text-white text-xl md:text-2xl font-bold mb-0">Prove your right to work</h1>
             </div>
           </div>
         )}

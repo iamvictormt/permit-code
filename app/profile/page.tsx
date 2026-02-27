@@ -133,7 +133,7 @@ export default function ProfilePage() {
       <GovHeader />
       <BetaBanner />
       <main className="flex-1 max-w-[960px] mx-auto w-full px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8">Your right to work</h1>
+        <h1 className="text-2xl md:text-4xl font-bold mb-8">Your right to work</h1>
 
         <div className="max-w-[640px]">
           {/* Main Card with Blue Border */}
@@ -164,7 +164,7 @@ export default function ProfilePage() {
                 <div>
                   <button
                     onClick={handlePhotoClick}
-                    className="flex items-center gap-2 bg-govuk-grey-3 hover:bg-govuk-grey-2 text-govuk-black px-4 py-2 border-b-2 border-govuk-grey-1 text-lg cursor-pointer"
+                    className="flex items-center gap-2 bg-govuk-grey-3 hover:bg-govuk-grey-2 text-govuk-black px-4 py-2 border-b-2 border-govuk-grey-1 text-base md:text-lg cursor-pointer"
                   >
                     Photo
                     <RotateCw className="w-5 h-5" />
@@ -173,25 +173,25 @@ export default function ProfilePage() {
               </div>
 
               {/* User Name */}
-              <h2 className="text-2xl font-bold mb-6 uppercase tracking-tight">{profileData.full_name}</h2>
+              <h2 className="text-xl md:text-2xl font-bold mb-6 uppercase tracking-tight">{profileData.full_name}</h2>
 
               {/* Status Sentence */}
-              <p className="text-xl mb-8 leading-relaxed">
+              <p className="text-base md:text-lg mb-8 leading-relaxed">
                 You have the right to work in the UK until{' '}
                 <span className="font-bold">{formatDate(profileData.right_to_work_until)}</span>.
               </p>
 
               {/* Conditions Section */}
               <div className="mb-8">
-                <h3 className="text-2xl font-bold mb-4">Conditions</h3>
+                <h3 className="text-xl md:text-2xl font-bold mb-4">Conditions</h3>
                 <p className="text-xl mb-6">{profileData.conditions}</p>
 
                 <div className="space-y-6 text-govuk-black leading-relaxed">
-                  <p className="text-lg">
+                  <p className="text-base md:text-lg">
                     To continue to work after this date, you will need to have either pre-settled status or settled
                     status under the EU Settlement Scheme (or another type of permission to stay).
                   </p>
-                  <p className="text-lg">
+                  <p className="text-base md:text-lg">
                     You can apply to switch to settled status as soon as you are eligible for it. This is usually once
                     you have lived in the UK for 5 years. Find out{' '}
                     <button className="text-govuk-blue underline hover:decoration-3">
@@ -206,7 +206,7 @@ export default function ProfilePage() {
               <div>
                 <button
                   onClick={() => setLegalBasisOpen(!legalBasisOpen)}
-                  className="flex items-center gap-2 text-govuk-blue underline hover:decoration-3 text-lg cursor-pointer"
+                  className="flex items-center gap-2 text-govuk-blue underline hover:decoration-3 text-base md:text-lg cursor-pointer"
                 >
                   <Play
                     className={`w-3 h-3 fill-govuk-blue transition-transform ${legalBasisOpen ? 'rotate-90' : ''}`}
@@ -216,8 +216,8 @@ export default function ProfilePage() {
 
                 {legalBasisOpen && (
                   <div className=" p-6 bg-govuk-grey-3 border-l-4 border-govuk-blue">
-                    <p className='text-lg mb-4'>This leave is issued in accordance with the EU exit separation agreements.</p>
-                    <ul className="list-disc list-inside space-y-2 text-lg mt-4">
+                    <p className='text-base md:text-lg mb-4'>This leave is issued in accordance with the EU exit separation agreements.</p>
+                    <ul className="list-disc list-inside space-y-2 text-base md:text-lg mt-4">
                       {LEGAL_BASIS_OPTIONS.map((option) => (
                         <li key={option} className=''>{option}</li>
                       ))}
@@ -229,13 +229,13 @@ export default function ProfilePage() {
           </div>
 
           {/* Prove your right to work Section */}
-          <h2 className="text-2xl font-bold mb-4">Prove your right to work</h2>
-          <p className="text-lg mb-6 leading-relaxed">
+          <h2 className="text-xl md:text-2xl font-bold mb-4">Prove your right to work</h2>
+          <p className="text-base md:text-lg mb-6 leading-relaxed">
             To share your details with an employer, you need to create a right to work share code.
           </p>
           <Button
             asChild
-            className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-6 py-4 h-auto text-xl shadow-[0_4px_0_#002d18] w-full sm:w-auto"
+            className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-6 py-4 h-auto text-base md:text-lg shadow-[0_4px_0_#002d18] w-full sm:w-auto"
           >
             <Link href="/profile/share-code">Get a share code</Link>
           </Button>
