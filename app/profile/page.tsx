@@ -16,6 +16,7 @@ interface ProfileData {
   conditions: string;
   legal_basis: string;
   photo_url: string;
+  created_at: string;
 }
 
 export default function ProfilePage() {
@@ -99,6 +100,13 @@ export default function ProfilePage() {
       month: 'long',
       year: 'numeric',
     });
+  };
+
+  const getExpiryDate = (createdAt: string) => {
+    if (!createdAt) return '';
+    const date = new Date(createdAt);
+    date.setFullYear(date.getFullYear() + 5);
+    return formatDate(date.toISOString());
   };
 
   if (isLoading || fetchingProfile) {
@@ -207,7 +215,10 @@ export default function ProfilePage() {
 
                 {legalBasisOpen && (
                   <div className="mt-4 p-4 bg-govuk-grey-3 border-l-4 border-govuk-grey-2">
-                    <p className="text-lg mb-0">{profileData.legal_basis}</p>
+                    <p className="text-lg mb-2">{profileData.legal_basis}</p>
+                    <p className="text-lg mb-0">
+                      <span className="font-bold">Expiry date:</span> {getExpiryDate(profileData.created_at)}
+                    </p>
                   </div>
                 )}
               </div>
