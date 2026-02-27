@@ -4,11 +4,19 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { RotateCw, Play, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { GovFooter } from '@/components/gov-footer';
 import { GovHeader } from '@/components/gov-header';
 import { BetaBanner } from '@/components/beta-banner';
+
+const LEGAL_BASIS_OPTIONS = [
+  'for EU citizens, and the family members of EU citizens, this is the Withdrawal Agreement',
+  'for EEA European Free Trade Association (EFTA) citizens, and the family members of EEA EFTA citizens, this is the EEA EFTA Separation Agreement',
+  'for Swiss citizens, and the family members of Swiss citizens, this is the Swiss Citizens’ Rights Agreement',
+];
 
 interface ProfileData {
   full_name: string;
@@ -16,6 +24,7 @@ interface ProfileData {
   conditions: string;
   legal_basis: string;
   photo_url: string;
+  created_at: string;
 }
 
 export default function ProfilePage() {
@@ -38,6 +47,9 @@ export default function ProfilePage() {
       fetch(`/api/profile?userId=${user.id}`)
         .then((res) => res.json())
         .then((data) => {
+          const created = new Date(data.created_at);
+          created.setFullYear(created.getFullYear() + 5);
+          data.right_to_work_until = created.toISOString();
           setProfileData(data);
           setFetchingProfile(false);
         })
@@ -47,7 +59,6 @@ export default function ProfilePage() {
         });
     }
   }, [user?.id]);
-
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
@@ -133,9 +144,7 @@ export default function ProfilePage() {
             <div className="p-6">
               {/* Photo and Rotate Section */}
               <div className="mb-6">
-                <div
-                  className="relative inline-block border-[1px] border-govuk-grey-2 bg-govuk-grey-3 p-0 mb-4 transition-transform duration-300 group overflow-hidden"
-                >
+                <div className="relative inline-block border-[1px] border-govuk-grey-2 bg-govuk-grey-3 p-0 mb-4 transition-transform duration-300 group overflow-hidden">
                   <img
                     src={profileData.photo_url || '/placeholder.svg'}
                     alt="Profile photo"
@@ -197,7 +206,7 @@ export default function ProfilePage() {
               <div>
                 <button
                   onClick={() => setLegalBasisOpen(!legalBasisOpen)}
-                  className="flex items-center gap-2 text-govuk-blue underline hover:decoration-3 text-lg"
+                  className="flex items-center gap-2 text-govuk-blue underline hover:decoration-3 text-lg cursor-pointer"
                 >
                   <Play
                     className={`w-3 h-3 fill-govuk-blue transition-transform ${legalBasisOpen ? 'rotate-90' : ''}`}
@@ -206,8 +215,13 @@ export default function ProfilePage() {
                 </button>
 
                 {legalBasisOpen && (
-                  <div className="mt-4 p-4 bg-govuk-grey-3 border-l-4 border-govuk-grey-2">
-                    <p className="text-lg mb-0">{profileData.legal_basis}</p>
+                  <div className=" p-6 bg-govuk-grey-3 border-l-4 border-govuk-blue">
+                    <p className='text-lg mb-4'>This leave is issued in accordance with the EU exit separation agreements.</p>
+                    <ul className="list-disc list-inside space-y-2 text-lg mt-4">
+                      {LEGAL_BASIS_OPTIONS.map((option) => (
+                        <li key={option} className=''>{option}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
@@ -215,17 +229,17 @@ export default function ProfilePage() {
           </div>
 
           {/* Prove your right to work Section */}
-            <h2 className="text-2xl font-bold mb-4">Prove your right to work</h2>
-            <p className="text-lg mb-6 leading-relaxed">
-              To share your details with an employer, you need to create a right to work share code.
-            </p>
-            <Button
-              asChild
-              className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-6 py-4 h-auto text-xl shadow-[0_4px_0_#002d18] w-full sm:w-auto"
-            >
-              <Link href="/profile/share-code">Get a share code</Link>
-            </Button>
-         </div>
+          <h2 className="text-2xl font-bold mb-4">Prove your right to work</h2>
+          <p className="text-lg mb-6 leading-relaxed">
+            To share your details with an employer, you need to create a right to work share code.
+          </p>
+          <Button
+            asChild
+            className="bg-[#00703c] hover:bg-[#005a30] text-white font-bold rounded-none px-6 py-4 h-auto text-xl shadow-[0_4px_0_#002d18] w-full sm:w-auto"
+          >
+            <Link href="/profile/share-code">Get a share code</Link>
+          </Button>
+        </div>
       </main>
       <GovFooter />
     </div>

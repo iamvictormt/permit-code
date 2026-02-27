@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     }
 
     const res = await query(
-      'SELECT full_name, date_of_birth, right_to_work_until, conditions, legal_basis, photo_url FROM users WHERE id = $1',
+      'SELECT full_name, date_of_birth, right_to_work_until, conditions, legal_basis, photo_url, created_at FROM users WHERE id = $1',
       [userId]
     )
 
