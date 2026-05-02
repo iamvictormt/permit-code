@@ -45,9 +45,9 @@ export async function POST(req: NextRequest) {
     }
     const shareCode = `${rawCode.slice(0, 3)} ${rawCode.slice(3, 6)} ${rawCode.slice(6, 9)}`
 
-    // Set expiry to 3 months from now
+    // Set expiry to 1 month from now
     const expiresAt = new Date()
-    expiresAt.setMonth(expiresAt.getMonth() + 3)
+    expiresAt.setMonth(expiresAt.getMonth() + 1)
 
     await query(
       'UPDATE users SET share_code = $1, share_code_expires_at = $2, share_code_created_at = CURRENT_TIMESTAMP WHERE id = $3',

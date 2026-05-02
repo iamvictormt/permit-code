@@ -152,19 +152,19 @@ export const mockShareCodes: ShareCode[] = [
   {
     code: "ABC123XY",
     user_id: "1",
-    expires_at: "2024-04-15T23:59:59Z",
+    expires_at: "2024-02-15T23:59:59Z",
     purpose: "Temporary access to administrative sector",
   },
   {
     code: "DEF456ZW",
     user_id: "2",
-    expires_at: "2024-03-30T23:59:59Z",
+    expires_at: "2024-03-10T23:59:59Z",
     purpose: "Credential verification",
   },
   {
     code: "GHI789AB",
     user_id: "4",
-    expires_at: "2024-03-20T18:00:00Z",
+    expires_at: "2024-04-15T18:00:00Z",
     purpose: "Technical visit",
   },
 ]

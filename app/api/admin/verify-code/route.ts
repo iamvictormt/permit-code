@@ -37,12 +37,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ valid: false, message: 'Code expired' })
     }
 
-    // Check 3-month rule explicitly if createdAt exists
+    // Check 1-month rule explicitly if createdAt exists
     if (createdAt) {
-      const threeMonthsAgo = new Date()
-      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3)
-      if (createdAt < threeMonthsAgo) {
-        return NextResponse.json({ valid: false, message: 'Code is older than 3 months' })
+      const oneMonthAgo = new Date()
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+      if (createdAt < oneMonthAgo) {
+        return NextResponse.json({ valid: false, message: 'Code is older than 1 month' })
       }
     }
 
